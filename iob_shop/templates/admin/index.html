@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+{% include 'includes/_messages.html' %}
+
+{% include 'includes/_navbar.html' %}
+
+<div class="container mt-5">
+    <table class="table table-sm table-condensed table-striped table-hover">
+        <thead>
+            <th>Sr</th>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Discount</th>
+            <th>Publisher</th>
+            <th>Image</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{loop.index}}</td>
+                    <td>{{product.name}}</td>
+                    <td>{{product.price}}</td>
+                    <td>{{product.discount}}%</td>
+                    <td>{{product.publisher.name}}</td>
+                    <td><img src="{{url_for('static', filename='images/product/' + product.image_1)}}" width="50" height="40"/></td>
+                    <td><a href="{{url_for('updateproduct', id=product.id)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
+                    <td><a href="" class="btn btn-sm btn-outline-danger">Delete</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

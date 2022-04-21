@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+{% include 'includes/_messages.html' %}
+
+{% include 'includes/_navbar.html' %}
+
+<div class="container mt-5">
+    <table class="table table-sm table-condensed table-striped table-hover">
+        <thead>
+            <th>Sr</th>
+            <th>Name</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </thead>
+        <tbody>
+            {% if publishers %}
+            {% for publisher in publishers %}
+            <tr>
+                <td>{{loop.index}}</td>
+                <td>{{publisher.name}}</td>
+                <td><a href="{{url_for('updatepublisher', id=publisher.id)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
+                <td><a href="" class="btn btn-sm btn-outline-danger">Delete</a></td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            {% for category in categories %}
+                <tr>
+                    <td>{{loop.index}}</td>
+                    <td>{{category.name}}</td>
+                    <td><a href="{{url_for('updatecategory', id=category.id)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
+                    <td><a href="" class="btn btn-sm btn-outline-danger">Delete</a></td>
+                </tr>
+            {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock content %}

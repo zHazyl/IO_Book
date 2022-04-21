@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            {% include "includes/_messages.html" %}
+            {% if updatepublisher %}
+                <h1 class="text-center mt-5">Update publisher</h1>
+                <form action="" method="POST">
+                    <input type="text" name="publisher" class="form-control" value="{{updatepublisher.name}}"/>
+                    <input type="submit" value="Update" class="btn btn-info mt-2"/>
+                </form>
+                <a href="{{url_for('publishers')}}" class="btn btn-secondary" style="margin-top: -65px; margin-left: 90px;">Cancel</a>
+            {% else %}
+                <h1 class="text-center mt-5">Update category</h1>
+                <form action="" method="POST">
+                    <input type="text" name="category" class="form-control" value="{{updatecategory.name}}"/>
+                    <input type="submit" value="Update" class="btn btn-info mt-2"/>
+                </form>
+                <a href="{{url_for('categories')}}" class="btn btn-secondary" style="margin-top: -65px; margin-left: 90px;">Cancel</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
