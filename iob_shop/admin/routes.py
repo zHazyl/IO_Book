@@ -4,10 +4,9 @@ from flask import render_template, session, request, redirect, url_for, flash
 from iob_shop import app, db, bcrypt
 from .forms import RegistrationForm, LoginForm
 from .models import User
-from iob_shop.products.models import Product, Publisher, Category
+from iob_shop.products.models import Product, Publisher, Category, Author
 import os
 
-@app.route('/')
 @app.route('/admin')
 def admin():
     if 'email' not in session:
@@ -23,6 +22,14 @@ def publishers():
         return redirect(url_for('login'))
     publishers = Publisher.query.order_by(Publisher.id.desc()).all()
     return render_template('admin/publishers.html', title='Publisher page', publishers=publishers)
+
+@app.route('/authors')
+def authors():
+    if 'email' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('login'))
+    authors = Author.query.order_by(Author.id.desc()).all()
+    return render_template('admin/publishers.html', title='Author page', authors=authors)
 
 @app.route('/categories')
 def categories():
@@ -57,3 +64,8 @@ def login():
         else:
             flash('Wrong Password please try again', 'danger')
     return render_template('admin/login.html', form=form, title='Login Page')
+
+@app.route('/logout')
+def logout():
+    session.pop('email', None)
+    return redirect(url_for('home'))

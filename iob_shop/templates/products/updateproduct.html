@@ -22,6 +22,14 @@
                     {% endfor %}
                 </select>
 
+                <label for="author"><strong>Author</strong></label>
+                <select name="author" id="author" class="form-control" required>
+                    <option value={{product.author_id}}>{{product.author.name}}</option>
+                    {% for author in authors %}
+                        <option value="{{author.id}}">{{author.name}} </option>
+                    {% endfor %}
+                </select>
+
                 <label for="category"><strong>category</strong> </label>
                 <select name="category" id="category" class="form-control" required>
                     <option value="{{product.category_id}}">{{product.category.name}}</option>
@@ -30,7 +38,6 @@
                     {% endfor %}
                 </select>
 
-                {{ render_field(form.format, class="form-control", placeholder="Add product format")}}
                 {{ render_field(form.description, class="form-control", placeholder="Add product detail", rows="10")}}
 
                 <div class="container">

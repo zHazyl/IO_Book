@@ -1,7 +1,7 @@
 <div class="container">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/admin">
+            <a class="navbar-brand" href="/home">
                 <image src="{{ url_for('static', filename='images/logo.jpg') }}" style="width:100px;height:100px;" alt=""/>
             </a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -10,21 +10,53 @@
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/admin">Product</a>
+                <a class="nav-link active" aria-current="page" href="/home">Home</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/publishers">Publishers</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/categories">Categories</a>
-              </li>
+              {% if publishers %}
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Dropdown
+                <a class="nav-link dropdown-toggle" href="#" id="publisherDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Publisher
                 </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" href="#">Action</a></li>
-                  <li><a class="dropdown-item" href="#">Another action</a></li>
+                <ul class="dropdown-menu" aria-labelledby="publisherDropdown">
+                  {% for publisher in publishers %}
+                  <li><a class="dropdown-item" href="{{url_for('get_publisher', id=publisher.id)}}">{{publisher.name}}</a></li>
+                  {% endfor %}
+                </ul>
+              </li>
+              {% endif %}
+              {% if categories %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Category
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                  {% for category in categories %}
+                  <li><a class="dropdown-item" href="{{url_for('get_category', id=category.id)}}">{{category.name}}</a></li>
+                  {% endfor %}
+                </ul>
+              </li>
+              {% endif %}
+              {% if authors %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="authorDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Author
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="authorDropdown">
+                  {% for author in authors %}
+                  <li><a class="dropdown-item" href="{{url_for('get_author', id=author.id)}}">{{author.name}}</a></li>
+                  {% endfor %}
+                </ul>
+              </li>
+              {% endif %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="listDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  List
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="listDropdown">
+                  <li><a class="dropdown-item" href="/admin">Product</a></li>
+                  <li><a class="dropdown-item" href="/publishers">Publisher</a></li>
+                  <li><a class="dropdown-item" href="/categories">Category</a></li>
+                  <li><a class="dropdown-item" href="/authors">Author</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="#">Something else here</a></li>
                 </ul>

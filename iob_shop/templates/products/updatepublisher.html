@@ -14,6 +14,13 @@
                     <input type="submit" value="Update" class="btn btn-info mt-2"/>
                 </form>
                 <a href="{{url_for('publishers')}}" class="btn btn-secondary" style="margin-top: -65px; margin-left: 90px;">Cancel</a>
+            {% elif updateauthor %}
+                <h1 class="text-center mt-5">Update author</h1>
+                <form action="" method="POST">
+                    <input type="text" name="author" class="form-control" value="{{updateauthor.name}}"/>
+                    <input type="submit" value="Update" class="btn btn-info mt-2"/>
+                </form>
+                <a href="{{url_for('authors')}}" class="btn btn-secondary" style="margin-top: -65px; margin-left: 90px;">Cancel</a>
             {% else %}
                 <h1 class="text-center mt-5">Update category</h1>
                 <form action="" method="POST">
