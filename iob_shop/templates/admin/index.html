@@ -1,10 +1,6 @@
 {% extends 'layout.html' %}
 {% block content %}
 
-{% include 'includes/_messages.html' %}
-
-{% include 'includes/_navbar.html' %}
-
 <div class="container mt-5">
     <table class="table table-sm table-condensed table-striped table-hover">
         <thead>
@@ -18,37 +14,37 @@
             <th>Delete</th>
         </thead>
         <tbody>
-            {% for product in products %}
+            {% for book in books %}
                 <tr>
                     <td>{{loop.index}}</td>
-                    <td>{{product.name}}</td>
-                    <td>{{product.price}}</td>
-                    <td>{{product.discount}}%</td>
-                    <td>{{product.author.name}}</td>
-                    <td><img src="{{url_for('static', filename='images/product/' + product.image_1)}}" width="50" height="40"/></td>
-                    <td><a href="{{url_for('updateproduct', id=product.id)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
+                    <td>{{book.name}}</td>
+                    <td>{{book.price}}</td>
+                    <td>{{book.discount}}%</td>
+                    <td>{{book.author.name}}</td>
+                    <td><img src="{{url_for('static', filename='images/book/' + book.image_1)}}" width="50" height="40"/></td>
+                    <td><a href="{{url_for('updatebook', id=book.id)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
                     <td>
                         <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-{{product.id}}">
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-{{book.id}}">
                             Delete
                         </button>
                     </td>
                 </tr>
 
                 <!-- Modal -->
-                <div class="modal fade" id="modal-{{product.id}}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal fade" id="modal-{{book.id}}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                        <h5 class="modal-title" id="deleteModalLabel">{{product.name}}</h5>
+                        <h5 class="modal-title" id="deleteModalLabel">{{book.name}}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <span class="text">Are you sure that want to delete this product {{product.name}}</span>
+                            <span class="text">Are you sure that want to delete this book {{book.name}}</span>
                         </div>
                         <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <form action="{{url_for('deleteproduct', id=product.id)}}" method="POST">
+                        <form action="{{url_for('deletebook', id=book.id)}}" method="POST">
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                         </div>
@@ -58,6 +54,6 @@
             {% endfor %}
         </tbody>
     </table>
-    <a href="/addproduct" class="btn btn-sm btn-primary">Add</a>
+    <a href="/addbook" class="btn btn-sm btn-primary">Add</a>
 </div>
 {% endblock content %}

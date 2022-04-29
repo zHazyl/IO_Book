@@ -1,0 +1,54 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <h2 class="text-center bg-info p-2">Update book</h2>
+            {% from "includes/_formhelpers.html" import render_field %}
+            <form action="" method="POST" enctype="multipart/form-data">
+                {{ render_field(form.name, class="form-control", placeholder="Add book name")}}
+                {{ render_field(form.price, class="form-control",placeholder="Add book price")}}
+                {{ render_field(form.discount, class="form-control", placeholder="Add book discount")}}
+                {{ render_field(form.stock, class="form-control", placeholder="Add book stock")}}
+
+                <label for="publisher"><strong>Publisher</strong></label>
+                <select name="publisher" id="publisher" class="form-control" required>
+                    <option value={{book.publisher_id}}>{{book.publisher.name}}</option>
+                    {% for publisher in publishers %}
+                        <option value="{{publisher.id}}">{{publisher.name}} </option>
+                    {% endfor %}
+                </select>
+
+                <label for="author"><strong>Author</strong></label>
+                <select name="author" id="author" class="form-control" required>
+                    <option value={{book.author_id}}>{{book.author.name}}</option>
+                    {% for author in authors %}
+                        <option value="{{author.id}}">{{author.name}} </option>
+                    {% endfor %}
+                </select>
+
+                <label for="category"><strong>category</strong> </label>
+                <select name="category" id="category" class="form-control" required>
+                    <option value="{{book.category_id}}">{{book.category.name}}</option>
+                    {% for category in categories %}
+                        <option value="{{category.id}}">{{category.name}} </option>
+                    {% endfor %}
+                </select>
+
+                {{ render_field(form.description, class="form-control", placeholder="Add book detail", rows="10")}}
+
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-4">{{ render_field(form.image_1, class="form-control") }}</div>
+                        <div class="col-md-4">{{ render_field(form.image_2, class="form-control") }}</div>
+                        <div class="col-md-4">{{ render_field(form.image_3, class="form-control") }}</div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-outline-info mt-4 mb-5">Update</button>
+            </form>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+{% endblock content %}

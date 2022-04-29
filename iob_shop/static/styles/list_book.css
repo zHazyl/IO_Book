@@ -1,0 +1,122 @@
+.book-grid{
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+}
+.book-grid .book-image{
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+.book-grid .book-image a.image{display: block; }
+.book-grid .book-image img{
+    width: 100%;
+    height: auto;
+}
+.book-grid .book-discount-label{
+    color: #fff;
+    background: #A5BA8D;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 25px;
+    padding: 0 20px;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}
+.book-grid .book-links{
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    position: absolute;
+    top: 10px;
+    right: -50px;
+    transition: all .5s ease 0s;
+}
+.book-grid:hover .book-links{ right: 10px; }
+.book-grid .book-links li a{
+    color: #fff;
+    background: #A5BA8D;
+    font-size: 17px;
+    line-height: 38px;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #fff;
+    border-bottom: none;
+    display: block;
+    transition: all 0.3s;
+}
+.book-grid .book-links li:last-child a{ border-bottom: 1px solid #fff; }
+.book-grid .book-links li a:hover{
+    color: #fff;
+    background: #333;
+}
+.book-grid .add-to-cart{
+    background: #A5BA8D;
+    color: #fff;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    width: 100%;
+    padding: 10px 26px;
+    position: absolute;
+    left: 0;
+    bottom: -60px;
+    transition: all 0.3s ease 0s;
+}
+.book-grid:hover .add-to-cart{ bottom: 0; }
+.book-grid .add-to-cart:hover{ text-shadow: 4px 4px rgba(0,0,0,0.2); }
+.book-grid .book-content{
+    background: #fff;
+    padding: 15px;
+    box-shadow: 0 0 0 5px rgba(0,0,0,0.1) inset;
+}
+.book-grid .title{
+    font-size: 20px;
+    font-weight: 600;
+    text-transform: capitalize;
+    margin: 0 0 7px;
+}
+.book-grid .title a{
+    color: #777;
+    transition: all 0.3s ease 0s;
+}
+.book-grid .title a:hover{ color: #a5ba8d; }
+.book-grid .price{
+    color: #0d0d0d;
+    font-size: 14px;
+    font-weight: 600;
+}
+.book-grid .price span{
+    color: #888;
+    font-size: 13px;
+    font-weight: 400;
+    text-decoration: line-through;
+}
+
+.book-grid .hastag{
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+    margin: 0 0 7px;
+}
+.book-grid .hastag a{
+    color: #888;
+    transition: all 0.3s ease 0s;
+}
+.book-grid .hastag a:hover{ color: #888; }
+
+.book-grid .author{
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: capitalize;
+    margin: 0 0 7px;
+}
+.book-grid .author a{
+    color: #0d0d0d;
+    transition: all 0.3s ease 0s;
+}
+.book-grid .author a:hover{ color: #0d0d0d; }
+
+@media screen and (max-width: 990px){
+    .book-grid{ margin-bottom: 30px; }
+}

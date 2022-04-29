@@ -1,0 +1,125 @@
+<head>
+  <link
+    rel="stylesheet"
+    href="{{url_for('static', filename='styles/list_book.css')}}"
+  />
+</head>
+
+{% extends 'layout.html' %} {% block content %}
+
+<div class="container">
+  <h1 class="mt-5">{{title}}</h1>
+  <div class="row">
+    {% for book in books.items %}
+    <!-- <div class="col-md-3 mt-3">
+                <div class="card">
+                    <img src="{{url_for('static', filename='images/book/'+book.image_1)}}" alt="" class="card-img-top" height="200">
+                    <div class="card-body">
+                        <h5 class="text-center">{{book.name}}</h5>
+                        <p class="text-center">Price ${{book.price}}</p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="#" class="btn btn-sm btn-warning">Add to cart</a>
+                        <a href="#" class="btn btn-sm btn-outline-primary">Details</a>
+                    </div>
+                </div>
+            </div> -->
+    <div class="col-md-3 col-sm-6 mt-3">
+      <div class="book-grid">
+        <div class="book-image">
+          <a href="{{url_for('single_book', id=book.id)}}" class="image">
+            <img
+              src="{{url_for('static', filename='images/book/'+book.image_1)}}"
+            />
+          </a>
+          {% if book.discount > 0 %}
+          <span class="book-discount-label">-{{book.discount}}%</span>
+          {% endif %}
+          <ul class="book-links">
+            <li>
+              <a href="#"><i class="fa fa-search mt-2"></i></a>
+            </li>
+            <li>
+              <a href="#"><i class="fa fa-heart mt-2"></i></a>
+            </li>
+            <li>
+              <a href="#"><i class="fa fa-random mt-2"></i></a>
+            </li>
+          </ul>
+          <form action="{{url_for('AddToCart')}}" method="post">
+            <input
+            type="hidden"
+            name="book_id"
+            value="{{book.id}}"
+          />
+            <input
+              type="hidden"
+              name="quantity"
+              id=""
+              value="1"
+              min="1"
+              max="{{book.stock}}"
+            />
+            <button href="#" type="submit" class="add-to-cart">
+              Add to cart
+            </button>
+          </form>
+        </div>
+        <div class="book-content">
+          <h3 class="title">
+            <a href="{{url_for('single_book', id=book.id)}}">{{book.name}}</a>
+          </h3>
+          <h3 class="author">
+            <a href="{{url_for('get_author', id=book.author_id)}}"
+              >by {{book.author.name}}</a
+            >
+          </h3>
+          <h3 class="hastag">
+            <a href="{{url_for('get_category', id=book.category_id)}}"
+              >#{{book.category.name}}</a
+            >
+          </h3>
+          <div class="price">
+            ${{book.price}} {% if book.discount > 0 %}
+            <span>$88.88</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <div>
+      <div class="col text-center">
+        {% if books.has_prev %}
+        <a
+          href="{{url_for('home', page=books.prev_num)}}"
+          class="btn btn-outline-info btn-sm mt-3 mb-3"
+          >Previous</a
+        >
+        {% endif %} {% for page_num in books.iter_pages(left_edge=1,
+        right_edge=1, left_current=1, right_current=2) %} {% if page_num %} {%
+        if books.page == page_num %}
+        <a
+          href="{{url_for('home', page=page_num)}}"
+          class="btn btn-info btn-sm mt-3 mb-3"
+          >{{page_num}}</a
+        >
+        {% else %}
+        <a
+          href="{{url_for('home', page=page_num)}}"
+          class="btn btn-outline-info btn-sm mt-3 mb-3"
+          >{{page_num}}</a
+        >
+        {% endif %} {% else %} ... {% endif %} {% endfor %} {% if books.has_next
+        %}
+        <a
+          href="{{url_for('home', page=books.next_num)}}"
+          class="btn btn-outline-info btn-sm mt-3 mb-3"
+          >Next</a
+        >
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

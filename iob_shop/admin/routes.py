@@ -3,8 +3,8 @@ from flask import render_template, session, request, redirect, url_for, flash
 
 from iob_shop import app, db, bcrypt
 from .forms import RegistrationForm, LoginForm
-from .models import User
-from iob_shop.products.models import Product, Publisher, Category, Author
+from .models import Admin
+from iob_shop.books.models import Book, Publisher, Category, Author
 import os
 
 @app.route('/admin')
@@ -12,8 +12,8 @@ def admin():
     if 'email' not in session:
         flash('Please login first', 'danger')
         return redirect(url_for('login'))
-    products = Product.query.all()
-    return render_template('admin/index.html', title='Admin page', products=products)
+    books = Book.query.all()
+    return render_template('admin/index.html', title='Admin page', books=books)
 
 @app.route('/publishers')
 def publishers():
@@ -44,9 +44,9 @@ def register():
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
         hash_password = bcrypt.generate_password_hash(form.password.data)
-        user = User(name=form.name.data, username=form.username.data, email=form.email.data,
+        admin = Admin(name=form.name.data, adminname=form.adminname.data, email=form.email.data,
                     password=hash_password)
-        db.session.add(user)
+        db.session.add(admin)
         db.session.commit()
         flash(f'Welcome {form.name.data}!! Thank you for registering', 'success')
         return redirect(url_for('admin'))
@@ -56,8 +56,8 @@ def register():
 def login():
     form = LoginForm(request.form)
     if request.method == "POST" and form.validate():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
+        admin = Admin.query.filter_by(email=form.email.data).first()
+        if admin and bcrypt.check_password_hash(admin.password, form.password.data):
             session['email'] = form.email.data
             flash(f'Welcom {form.email.data}! You\'re loged in now', 'success')
             return redirect(request.args.get('next') or url_for('admin'))
