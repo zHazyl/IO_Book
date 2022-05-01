@@ -3,6 +3,7 @@
 {% block content %}
 
 <div class="container mt-5">
+    <h1>{{title[0:-5]}}</h1><br/>
     <table class="table table-sm table-condensed table-striped table-hover">
         <thead>
             <th>Sr</th>
@@ -52,7 +53,7 @@
             {% for author in authors %}
             <tr>
                 <td>{{loop.index}}</td>
-                <td>{{author.name}}</td>
+                <td>{{author.Fname}} {% if author.Mname %}{{author.Mname}} {% endif %}{{author.Lname}}</td>
                 <td><a href="{{url_for('updateauthor', id=author.id)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
                 <td>
                     <!-- Button trigger modal -->
@@ -76,6 +77,43 @@
                     <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <form action="{{url_for('deleteauthor', id=author.id)}}" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    </div>
+                </div>
+                </div>
+            </div>
+  
+            {% endfor %}
+
+            {% elif discounts %}
+            {% for discount in discounts %}
+            <tr>
+                <td>{{loop.index}}</td>
+                <td>{{discount.name}}</td>
+                <td><a href="{{url_for('updatediscount', id=discount.id)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
+                <td>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-{{discount.id}}">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+
+            <!-- Modal -->
+            <div class="modal fade" id="modal-{{discount.id}}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">{{discount.name}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <span class="text">Are you sure that want to delete this discount {{discount.name}}</span>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{{url_for('deletediscount', id=discount.id)}}" method="POST">
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                     </div>
@@ -128,6 +166,8 @@
         <a href="/addpublisher" class="btn btn-sm btn-primary">Add publisher</a>
     {% elif authors %}
         <a href="/addauthor" class="btn btn-sm btn-primary">Add author</a>
+    {% elif discounts %}
+        <a href="/adddiscount" class="btn btn-sm btn-primary">Add discount</a>
     {% else %}
         <a href="/addcategory" class="btn btn-sm btn-primary">Add category</a>
     {% endif %}

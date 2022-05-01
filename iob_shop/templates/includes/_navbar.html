@@ -90,7 +90,7 @@
                 <a
                   class="dropdown-item"
                   href="{{url_for('get_author', id=author.id)}}"
-                  >{{author.name}}</a
+                  >{{author.Fname}} {% if author.Mname %}{{author.Mname}} {% endif %}{{author.Lname}}</a
                 >
               </li>
               {% endfor %}

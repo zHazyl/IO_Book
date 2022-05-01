@@ -7,8 +7,6 @@
             <th>Sr</th>
             <th>Product</th>
             <th>Price</th>
-            <th>Discount</th>
-            <th>Author</th>
             <th>Image</th>
             <th>Edit</th>
             <th>Delete</th>
@@ -17,22 +15,21 @@
             {% for book in books %}
                 <tr>
                     <td>{{loop.index}}</td>
-                    <td>{{book.name}}</td>
+                    <td>{{book.title}}</td>
                     <td>{{book.price}}</td>
-                    <td>{{book.discount}}%</td>
-                    <td>{{book.author.name}}</td>
+                    <!-- <td>{{book.discount}}%</td> -->
                     <td><img src="{{url_for('static', filename='images/book/' + book.image_1)}}" width="50" height="40"/></td>
-                    <td><a href="{{url_for('updatebook', id=book.id)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
+                    <td><a href="{{url_for('updatebook', isbn=book.ISBN)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
                     <td>
                         <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-{{book.id}}">
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-{{book.ISBN}}">
                             Delete
                         </button>
                     </td>
                 </tr>
 
                 <!-- Modal -->
-                <div class="modal fade" id="modal-{{book.id}}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal fade" id="modal-{{book.ISBN}}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -44,7 +41,7 @@
                         </div>
                         <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <form action="{{url_for('deletebook', id=book.id)}}" method="POST">
+                        <form action="{{url_for('deletebook', isbn=book.ISBN)}}" method="POST">
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                         </div>
