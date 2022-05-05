@@ -2,7 +2,7 @@ from crypt import methods
 from unicodedata import category
 from click import File
 from flask import redirect, request, url_for, render_template, flash, session, current_app
-from sqlalchemy import null
+from sqlalchemy import func, null
 from iob_shop import db, app, photos
 from iob_shop.admin.routes import publishers
 from .models import Author_write_book, Book_belongs_to_category, Book_discount, Publisher, Category, Author, Book, Discount
@@ -14,17 +14,46 @@ from datetime import datetime
 @app.route('/home')
 def home():
     page = request.args.get('page', 1, type=int)
-    books = db.session.query(Book).filter(Book.stock > 0).paginate(page=page, per_page=2)
-    publishers = db.session.query(Publisher).join(Book, (Publisher.id==Book.publisher_id)).all()
-    categories = db.session.query(Category).join(Book, (Category.id==Book.category_id)).all()
-    authors = db.session.query(Author).join(Book, (Author.id==Book.author_id)).all()
-    return render_template('books/index.html', books=books, publishers=publishers, categories=categories, authors=authors, title='Home')
+    books = db.session.query(Book).filter(Book.stock > 0).paginate(page=page, per_page=15)
+    publishers = db.session.query(Publisher).join(Book, (Publisher.name==Book.Pname)).all()
+    categories = db.session.query(Category).join(Book_belongs_to_category, (Category.name==Book_belongs_to_category.category_name)).all()
+    authors = db.session.query(Author).join(Author_write_book, (Author.phone_num==Author_write_book.Aphone_num)).all()
+    discounts = db.session.query(Discount).join(Book_discount, (Discount.id==Book_discount.discount_id)).all()
+    author_write_book = dict()
+    book_belongs_to_category = dict()
+    book_discount = dict()
+    for book in books.items:
+        squery = db.session.query(Author_write_book.Aphone_num).filter_by(ISBN=book.ISBN).subquery()
+        author = db.session.query(Author).filter(Author.phone_num.in_(squery)).all()
+        squery = db.session.query(Book_belongs_to_category.category_name).filter_by(ISBN=book.ISBN).subquery()
+        category = db.session.query(Category).filter(Category.name.in_(squery)).all()
+        squery = db.session.query(Book_discount.discount_id).filter_by(book_id=book.ISBN).subquery()
+        discount = db.session.query(func.max(Discount.value)).filter(Discount.id.in_(squery)).first_or_404()
+        author_write_book[book.ISBN] = author
+        book_belongs_to_category[book.ISBN] = category
+        book_discount[book.ISBN] = [int(discount[0]*100), book.price*(1 - discount[0])] if discount[0] else [0, book.price]
+    return render_template('books/index.html', books=books, publishers=publishers, categories=categories, authors=authors, discounts=discounts, title='Home',
+                           author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount)
 
 @app.route('/publisher/<int:id>')
 def get_publisher(id):
     page = request.args.get('page', 1, type=int)
-    pbypublisher = db.session.query(Book).filter_by(publisher_id=id).paginate(page=page, per_page=3)
-    return render_template('books/index.html', books=pbypublisher, title=db.session.query(Publisher).get_or_404(id).name)
+    pname = db.session.query(Publisher).filter_by(id=id).first_or_404().name
+    pbypublisher = db.session.query(Book).filter_by(Pname=pname).paginate(page=page, per_page=20)
+    author_write_book = dict()
+    book_belongs_to_category = dict()
+    book_discount = dict()
+    for book in pbypublisher.items:
+        squery = db.session.query(Author_write_book.Aphone_num).filter_by(ISBN=book.ISBN).subquery()
+        author = db.session.query(Author).filter(Author.phone_num.in_(squery)).all()
+        squery = db.session.query(Book_belongs_to_category.category_name).filter_by(ISBN=book.ISBN).subquery()
+        category = db.session.query(Category).filter(Category.name.in_(squery)).all()
+        squery = db.session.query(Book_discount.discount_id).filter_by(book_id=book.ISBN).subquery()
+        discount = db.session.query(func.max(Discount.value)).filter(Discount.id.in_(squery)).first_or_404()
+        author_write_book[book.ISBN] = author
+        book_belongs_to_category[book.ISBN] = category
+        book_discount[book.ISBN] = [int(discount[0]*100), book.price*(1 - discount[0])] if discount[0] else [0, book.price]
+    return render_template('books/index.html', books=pbypublisher, title=pname, author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount)
 
 @app.route('/addpublisher', methods=['GET', 'POST'])
 def addpublisher():
@@ -77,8 +106,22 @@ def deletepublisher(id):
 @app.route('/category/<int:id>')
 def get_category(id):
     page = request.args.get('page', 1, type=int)
-    pbycategory = db.session.query(Book).filter_by(category_id=id).paginate(page=page, per_page=3)
-    return render_template('books/index.html', books=pbycategory, title=db.session.query(Category).get_or_404(id).name)
+    category_name = db.session.query(Category).filter_by(id=id).first_or_404().name
+    pbycategory = db.session.query(Book).join(Book_belongs_to_category, (Book.ISBN==Book_belongs_to_category.ISBN)).filter_by(category_name=category_name).paginate(page=page, per_page=20)
+    author_write_book = dict()
+    book_belongs_to_category = dict()
+    book_discount = dict()
+    for book in pbycategory.items:
+        squery = db.session.query(Author_write_book.Aphone_num).filter_by(ISBN=book.ISBN).subquery()
+        author = db.session.query(Author).filter(Author.phone_num.in_(squery)).all()
+        squery = db.session.query(Book_belongs_to_category.category_name).filter_by(ISBN=book.ISBN).subquery()
+        category = db.session.query(Category).filter(Category.name.in_(squery)).all()
+        squery = db.session.query(Book_discount.discount_id).filter_by(book_id=book.ISBN).subquery()
+        discount = db.session.query(func.max(Discount.value)).filter(Discount.id.in_(squery)).first_or_404()
+        author_write_book[book.ISBN] = author
+        book_belongs_to_category[book.ISBN] = category
+        book_discount[book.ISBN] = [int(discount[0]*100), book.price*(1 - discount[0])] if discount[0] else [0, book.price]
+    return render_template('books/index.html', books=pbycategory, title=category_name, author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount)
 
 @app.route('/addcategory', methods=['GET', 'POST'])
 def addcategory():
@@ -128,8 +171,23 @@ def deletecategory(id):
 @app.route('/author/<int:id>')
 def get_author(id):
     page = request.args.get('page', 1, type=int)
-    pbyauthor = db.session.query(Book).filter_by(author_id=id).paginate(page=page, per_page=3)
-    return render_template('books/index.html', books=pbyauthor, title=db.session.query(Author).get_or_404(id).name)
+    author = db.session.query(Author).filter_by(id=id).first_or_404()
+    authorname = author.Fname + (author.Mname if author.Mname else '') + author.Lname
+    pbyauthor = db.session.query(Book).join(Author_write_book, (Book.ISBN==Author_write_book.ISBN)).filter_by(Aphone_num=author.phone_num).paginate(page=page, per_page=20)
+    author_write_book = dict()
+    book_belongs_to_category = dict()
+    book_discount = dict()
+    for book in pbyauthor.items:
+        squery = db.session.query(Author_write_book.Aphone_num).filter_by(ISBN=book.ISBN).subquery()
+        author = db.session.query(Author).filter(Author.phone_num.in_(squery)).all()
+        squery = db.session.query(Book_belongs_to_category.category_name).filter_by(ISBN=book.ISBN).subquery()
+        category = db.session.query(Category).filter(Category.name.in_(squery)).all()
+        squery = db.session.query(Book_discount.discount_id).filter_by(book_id=book.ISBN).subquery()
+        discount = db.session.query(func.max(Discount.value)).filter(Discount.id.in_(squery)).first_or_404()
+        author_write_book[book.ISBN] = author
+        book_belongs_to_category[book.ISBN] = category
+        book_discount[book.ISBN] = [int(discount[0]*100), book.price*(1 - discount[0])] if discount[0] else [0, book.price]
+    return render_template('books/index.html', books=pbyauthor, title=authorname, author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount)
 
 @app.route('/addauthor', methods=['GET', 'POST'])
 def addauthor():
@@ -184,6 +242,26 @@ def deleteauthor(id):
     flash(f'The author {author.name} can\'t be deleted', 'warning')
     return redirect(url_for('authors'))
 
+@app.route('/discount/<int:id>')
+def get_discount(id):
+    page = request.args.get('page', 1, type=int)
+    discountname = db.session.query(Discount).filter_by(id=id).first_or_404().name
+    pbydiscount = db.session.query(Book).join(Book_discount, (Book.ISBN==Book_discount.book_id)).filter_by(discount_id=id).paginate(page=page, per_page=3)
+    author_write_book = dict()
+    book_belongs_to_category = dict()
+    book_discount = dict()
+    for book in pbydiscount.items:
+        squery = db.session.query(Author_write_book.Aphone_num).filter_by(ISBN=book.ISBN).subquery()
+        author = db.session.query(Author).filter(Author.phone_num.in_(squery)).all()
+        squery = db.session.query(Book_belongs_to_category.category_name).filter_by(ISBN=book.ISBN).subquery()
+        category = db.session.query(Category).filter(Category.name.in_(squery)).all()
+        squery = db.session.query(Book_discount.discount_id).filter_by(book_id=book.ISBN).subquery()
+        discount = db.session.query(func.max(Discount.value)).filter(Discount.id.in_(squery)).first_or_404()
+        author_write_book[book.ISBN] = author
+        book_belongs_to_category[book.ISBN] = category
+        book_discount[book.ISBN] = [int(discount[0]*100), book.price*(1 - discount[0])] if discount[0] else [0, book.price]
+    return render_template('books/index.html', books=pbydiscount, title=discountname, author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount)
+
 @app.route('/adddiscount', methods=['GET', 'POST'])
 def adddiscount():
     if 'email' not in session:
@@ -228,6 +306,9 @@ def deletediscount(id):
         return render_template(url_for('login'))
     discount = db.session.query(Discount).filter_by(id=id).first_or_404()
     if request.method == 'POST':
+        book_discount = db.session.query(Book_discount).filter_by(discount_id=id).all()
+        for d in book_discount:
+            db.session.delete(d)
         db.session.delete(discount)
         flash(f'The discount {discount.name} was deleted from your database', 'success')
         db.session.commit()
@@ -235,10 +316,19 @@ def deletediscount(id):
     flash(f'The discount {discount.name} can\'t be deleted', 'warning')
     return redirect(url_for('discounts'))
 
-@app.route('/book/<int:id>')
-def single_book(id):
-    book = db.session.query(Book).get_or_404(id)
-    return render_template('books/single_book.html', book=book)
+@app.route('/book/<string:isbn>')
+def single_book(isbn):
+    book = db.session.query(Book).filter_by(ISBN=isbn).first_or_404()
+    squery = db.session.query(Author_write_book.Aphone_num).filter_by(ISBN=book.ISBN).subquery()
+    author = db.session.query(Author).filter(Author.phone_num.in_(squery)).all()
+    squery = db.session.query(Book_belongs_to_category.category_name).filter_by(ISBN=book.ISBN).subquery()
+    category = db.session.query(Category).filter(Category.name.in_(squery)).all()
+    squery = db.session.query(Book_discount.discount_id).filter_by(book_id=book.ISBN).subquery()
+    discountmax = db.session.query(func.max(Discount.value)).filter(Discount.id.in_(squery)).first_or_404()[0]
+    discountprice = book.price * (1 - (discountmax if discountmax else 0))
+    discount = db.session.query(Discount).filter_by(value=discountmax).first_or_404() if discountmax else None
+    pid = db.session.query(Publisher).filter_by(name=book.Pname).first_or_404().id
+    return render_template('books/single_book.html', book=book, author=author, category=category, discountprice=discountprice, pid=pid, discount=discount)
 
 @app.route('/addbook', methods=['POST', 'GET'])
 def addbook():
@@ -296,16 +386,18 @@ def updatebook(isbn):
     if 'email' not in session:
         flash('Please login first', 'danger')
         return redirect(url_for('login'))
-    publishers = db.session.query(Publisher).all()
-    categories = db.session.query(Category).all()
-    authors = db.session.query(Author).all()
+    # publishers = db.session.query(Publisher).all()
+    # categories = db.session.query(Category).all()
+    # authors = db.session.query(Author).all()
     discounts = db.session.query(Discount).all()
     book = db.session.query(Book).filter_by(ISBN=isbn).first_or_404()
     form = Addbook(request.form)
     # author = request.form.getlist('author')
     # publisher = request.form.get('publisher')
     # category = request.form.getlist('category')
-    # discount = request.form.getlist('discount')
+    discount = [int(i) for i in request.form.getlist('discount')]
+    # old_discount = db.session.query(Book_discount).with_entities(Book_discount.discount_id).filter_by(book_id=isbn).all() multiple entities use this
+    old_discount = [i[0] for i in db.session.query(Book_discount.discount_id).filter_by(book_id=isbn).all()]
     
     if request.method == 'POST':
         book.ISBN = form.isbn.data
@@ -317,6 +409,17 @@ def updatebook(isbn):
         book.sales_amount = form.sales_amount.data
         book.shortdesc = form.shortdesc.data
         book.longdesc = form.longdesc.data
+        
+        for id in old_discount:
+            if id not in discount and id != 0:
+                deldiscount = db.session.query(Discount).filter_by(id=id).first_or_404()
+                db.session.delete(deldiscount)
+        
+        for id in discount:
+            if id not in old_discount and id != 0:
+                add_book_discount = Book_discount(discount_id=id, book_id=isbn)
+                db.session.add(add_book_discount)
+        
         if request.files.get('image_1'):
             try:
                 os.unlink(os.path.join(current_app.root_path, 'static/images/book/' + book.image_1))
@@ -353,7 +456,7 @@ def updatebook(isbn):
     form.shortdesc.data = book.shortdesc
     form.longdesc.data = book.longdesc
     return render_template('books/updatebook.html', title='Update book page', 
-                           form=form, publishers=publishers, categories=categories, authors=authors,book=book, discounts=discounts)
+                           form=form, discounts=discounts, old_discount=old_discount)
     
 @app.route('/deletebook/<string:isbn>', methods=['POST'])
 def deletebook(isbn):

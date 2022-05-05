@@ -64,7 +64,7 @@
     <div class="col-md-6 mt-3">
       <div class="book-dtl">
         <div class="book-info">
-          <div class="book-name">{{book.name}}</div>
+          <div class="book-name">{{book.title}}</div>
           <div class="reviews-counter">
             <div class="rate">
               <input type="radio" id="star5" name="rate" value="5" checked />
@@ -81,33 +81,45 @@
             <span>3 Reviews</span>
           </div>
           <div class="book-price-discount">
-            <span>${{book.price}}</span><span class="line-through">$99.00</span>
+            <span>${{discountprice|float}}</span><span class="line-through">${{book.price|float}}</span>
           </div>
         </div>
-        <p>{{book.desc}}</p>
-
+        <p>{{book.shortdesc}}</p>
+        {% if discount %}
+        <label class="mt-2"><strong>HOT:</strong></label>
+        <h1 class="form-text">
+          <a href="{{url_for('get_discount', id=discount.id)}}"
+            >{{discount.name}}</a
+          >
+        </h1>
+        {% endif %}
         <div class="row">
           <div class="col-md-6">
             <label class="mt-2">Author:</label>
             <h1 class="form-text">
-              <a href="{{url_for('get_author', id=book.author_id)}}"
-                >{{book.author.name}}</a
+              by {% for auth in author %}
+              <a href="{{url_for('get_author', id=auth.id)}}"
+                >{{auth.Fname}} {% if auth.Mname %}{{auth.Mname}} {% endif
+                %}{{auth.Lname}}</a
               >
+              {% endfor %}
             </h1>
           </div>
           <div class="col-md-6">
             <label class="mt-2">Category:</label>
             <h3 class="form-text">
-              <a href="{{url_for('get_category', id=book.category_id)}}"
-                >{{book.category.name}}</a
-              >
+              {% for cate in category %}
+              <a href="{{url_for('get_category', id=cate.id)}}"
+                >#{{cate.name}}
+              </a>
+              {% endfor %}
             </h3>
           </div>
           <div class="col-md-6">
             <label class="mt-2">Publisher:</label>
             <h3 class="form-text">
-              <a href="{{url_for('get_category', id=book.category_id)}}"
-                >{{book.publisher.name}}</a
+              <a href="{{url_for('get_publisher', id=pid)}}"
+                >{{book.Pname}}</a
               >
             </h3>
           </div>
@@ -121,7 +133,7 @@
           <div class="row">
             <div class="col-md-6">
               <div class="book-count">
-                <input type="hidden" name="book_id" value="{{book.id}}" />
+                <input type="hidden" name="book_isbn" value="{{book.ISBN}}" />
                 <label for="size">Quantity:</label>
                 <input
                   type="number"
@@ -179,7 +191,7 @@
           role="tabpanel"
           aria-labelledby="description-tab"
         >
-          {{book.desc}}
+          {{book.longdesc}}
         </div>
         <div
           class="tab-pane fade"

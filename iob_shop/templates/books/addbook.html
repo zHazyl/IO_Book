@@ -68,6 +68,7 @@
           data-live-search="true"
           required
         >
+          <option value="0">None</option>
           {% for discount in discounts %}
           <option value="{{discount.id}}">{{discount.name}}</option>
           {% endfor %}

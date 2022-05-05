@@ -96,6 +96,30 @@
               {% endfor %}
             </ul>
           </li>
+          {% endif %} {% if discounts %}
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="discountDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Discount
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="discountDropdown">
+              {% for discount in discounts %}
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="{{url_for('get_discount', id=discount.id)}}"
+                  >{{discount.name}}</a
+                >
+              </li>
+              {% endfor %}
+            </ul>
+          </li>
           {% endif %}
           <li class="nav-item dropdown">
             <a
@@ -119,10 +143,10 @@
           </li>
           <li class="nav-item">
             <a
-              class="nav-link disabled"
+              class="nav-link"
               aria-current="page"
               tabindex="-1"
-              href="#"
+              href="{{url_for('get_cart')}}"
               >Cart ({{session['Shoppingcart']|length}})</a
             >
           </li>

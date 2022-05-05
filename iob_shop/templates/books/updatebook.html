@@ -12,7 +12,28 @@
       placeholder="Publish date")}} {{ render_field(form.price,
       class="form-control",placeholder="Price")}} {{ render_field(form.stock,
       class="form-control", placeholder="Stock")}} {{
-      render_field(form.sales_amount, class="form-control", placeholder="Sales amount")}} {{ render_field(form.shortdesc, class="form-control",
+      render_field(form.sales_amount, class="form-control", placeholder="Sales amount")}} 
+      
+      <label for="discount"><strong>Discount</strong></label>
+      <select
+        name="discount"
+        id="discount"
+        class="form-control mb-2"
+        multiple
+        data-live-search="true"
+        required
+      >
+        <option value="0">None</option>
+        {% for discount in discounts %}
+          {% if discount.id in old_discount %}
+            <option value="{{discount.id}}" selected>{{discount.name}}</option>
+          {% else %}
+            <option value="{{discount.id}}">{{discount.name}}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      
+      {{ render_field(form.shortdesc, class="form-control",
       placeholder="Short description", rows="3")}} {{
       render_field(form.longdesc, class="form-control", placeholder="Long description", rows="10")}}
 
