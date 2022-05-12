@@ -15,7 +15,7 @@
                 <div class="card">
                     <img src="{{url_for('static', filename='images/book/'+book.image_1)}}" alt="" class="card-img-top" height="200">
                     <div class="card-body">
-                        <h5 class="text-center">{{book.name}}</h5>
+                        <h5 class="text-center">{{book.title}}</h5>
                         <p class="text-center">Price ${{book.price}}</p>
                     </div>
                     <div class="card-footer">
@@ -27,13 +27,15 @@
     <div class="col-md-3 col-sm-6 mt-3">
       <div class="book-grid">
         <div class="book-image">
-          <a href="{{url_for('single_book', id=book.id)}}" class="image">
+          <a href="{{url_for('single_book', isbn=book.ISBN)}}" class="image">
             <img
               src="{{url_for('static', filename='images/book/'+book.image_1)}}"
             />
           </a>
-          {% if book.discount > 0 %}
-          <span class="book-discount-label">-{{book.discount}}%</span>
+          {% if book_discount[book.ISBN][0] > 0 %}
+          <span class="book-discount-label"
+            >-{{book_discount[book.ISBN][0]}}%</span
+          >
           {% endif %}
           <ul class="book-links">
             <li>
@@ -47,11 +49,7 @@
             </li>
           </ul>
           <form action="{{url_for('AddToCart')}}" method="post">
-            <input
-            type="hidden"
-            name="book_id"
-            value="{{book.id}}"
-          />
+            <input type="hidden" name="book_isbn" value="{{book.ISBN}}" />
             <input
               type="hidden"
               name="quantity"
@@ -67,21 +65,28 @@
         </div>
         <div class="book-content">
           <h3 class="title">
-            <a href="{{url_for('single_book', id=book.id)}}">{{book.name}}</a>
+            <a href="{{url_for('single_book', isbn=book.ISBN)}}"
+              >{{book.title}}</a
+            >
           </h3>
           <h3 class="author">
-            <a href="{{url_for('get_author', id=book.author_id)}}"
-              >by {{book.author.name}}</a
+            by {% for auth in author_write_book[book.ISBN] %}
+            <a href="{{url_for('get_author', id=auth.id)}}"
+              >{{auth.Fname}} {% if auth.Mname %}{{auth.Mname}} {% endif
+              %}{{auth.Lname}}</a
             >
+            {% endfor %}
           </h3>
           <h3 class="hastag">
-            <a href="{{url_for('get_category', id=book.category_id)}}"
-              >#{{book.category.name}}</a
-            >
+            {% for cate in book_belongs_to_category[book.ISBN] %}
+            <a href="{{url_for('get_category', id=cate.id)}}"
+              >#{{cate.name}}
+            </a>
+            {% endfor %}
           </h3>
           <div class="price">
-            ${{book.price}} {% if book.discount > 0 %}
-            <span>$88.88</span>
+            ${{book_discount[book.ISBN][1]|float}} {% if book_discount[book.ISBN][0] > 0 %}
+            <span>${{book.price|float}}</span>
             {% endif %}
           </div>
         </div>
@@ -90,6 +95,7 @@
     {% endfor %}
     <div>
       <div class="col text-center">
+        {% if books.total > 20 %}
         {% if books.has_prev %}
         <a
           href="{{url_for('home', page=books.prev_num)}}"
@@ -117,6 +123,7 @@
           class="btn btn-outline-info btn-sm mt-3 mb-3"
           >Next</a
         >
+        {% endif %}
         {% endif %}
       </div>
     </div>

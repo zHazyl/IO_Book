@@ -8,7 +8,7 @@ import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:tnh210302@localhost/IOB_test'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:tnh210302@localhost/IOB'
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config['SECRET_KEY'] = 'lkajdlkfhawoiherlhslhd'
