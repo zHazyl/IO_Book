@@ -2,19 +2,61 @@ from crypt import methods
 from unicodedata import category
 from click import File
 from flask import redirect, request, url_for, render_template, flash, session, current_app
+from flask_login import current_user
 from sqlalchemy import func, null
-from iob_shop import db, app, photos
+from iob_shop import db, app, photos, search
 from iob_shop.admin.routes import publishers
 from .models import Author_write_book, Book_belongs_to_category, Book_discount, Publisher, Category, Author, Book, Discount
 from .forms import Addbook
 import secrets, os
 from datetime import datetime
 
+def publishers():
+    publishers = db.session.query(Publisher).join(Book, (Publisher.name==Book.Pname)).all()
+    return publishers
+
+def categories():
+    categories = db.session.query(Category).join(Book_belongs_to_category, (Category.name==Book_belongs_to_category.category_name)).all()
+    return categories
+
+def authors():
+    authors = db.session.query(Author).join(Author_write_book, (Author.phone_num==Author_write_book.Aphone_num)).all()
+    return authors
+
 @app.route('/')
 @app.route('/home')
 def home():
     page = request.args.get('page', 1, type=int)
     books = db.session.query(Book).filter(Book.stock > 0).paginate(page=page, per_page=15)
+    publishers = db.session.query(Publisher).join(Book, (Publisher.name==Book.Pname)).all()
+    categories = db.session.query(Category).join(Book_belongs_to_category, (Category.name==Book_belongs_to_category.category_name)).all()
+    authors = db.session.query(Author).join(Author_write_book, (Author.phone_num==Author_write_book.Aphone_num)).all()
+    discounts = db.session.query(Discount).join(Book_discount, (Discount.id==Book_discount.discount_id)).all()
+    author_write_book = dict()
+    book_belongs_to_category = dict()
+    book_discount = dict()
+    
+    for book in books.items:
+        squery = db.session.query(Author_write_book.Aphone_num).filter_by(ISBN=book.ISBN).subquery()
+        author = db.session.query(Author).filter(Author.phone_num.in_(squery)).all()
+        squery = db.session.query(Book_belongs_to_category.category_name).filter_by(ISBN=book.ISBN).subquery()
+        category = db.session.query(Category).filter(Category.name.in_(squery)).all()
+        squery = db.session.query(Book_discount.discount_id).filter_by(book_id=book.ISBN).subquery()
+        discount = db.session.query(func.max(Discount.value)).filter(Discount.id.in_(squery)).first_or_404()
+        author_write_book[book.ISBN] = author
+        book_belongs_to_category[book.ISBN] = category
+        book_discount[book.ISBN] = [int(discount[0]*100), book.price*(1 - discount[0])] if discount[0] else [0, book.price]
+    return render_template('books/index.html', books=books, publishers=publishers, categories=categories, authors=authors, discounts=discounts, title='Home',
+                           author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount)
+    
+@app.route('/result')
+def result():
+    page = request.args.get('page', 1, type=int)
+    searchword = request.args.get('q')
+    if searchword:
+        books = db.session.query(Book).filter(Book.title.contains(searchword) | Book.shortdesc.contains(searchword)).paginate(page=page, per_page=15)
+    else:
+        books = db.session.query(Book).filter(Book.stock > 0).paginate(page=page, per_page=15)
     publishers = db.session.query(Publisher).join(Book, (Publisher.name==Book.Pname)).all()
     categories = db.session.query(Category).join(Book_belongs_to_category, (Category.name==Book_belongs_to_category.category_name)).all()
     authors = db.session.query(Author).join(Author_write_book, (Author.phone_num==Author_write_book.Aphone_num)).all()
@@ -32,7 +74,7 @@ def home():
         author_write_book[book.ISBN] = author
         book_belongs_to_category[book.ISBN] = category
         book_discount[book.ISBN] = [int(discount[0]*100), book.price*(1 - discount[0])] if discount[0] else [0, book.price]
-    return render_template('books/index.html', books=books, publishers=publishers, categories=categories, authors=authors, discounts=discounts, title='Home',
+    return render_template('books/index.html', books=books, publishers=publishers, categories=categories, authors=authors, discounts=discounts, title=f"'{searchword}'",
                            author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount)
 
 @app.route('/publisher/<int:id>')
@@ -53,7 +95,7 @@ def get_publisher(id):
         author_write_book[book.ISBN] = author
         book_belongs_to_category[book.ISBN] = category
         book_discount[book.ISBN] = [int(discount[0]*100), book.price*(1 - discount[0])] if discount[0] else [0, book.price]
-    return render_template('books/index.html', books=pbypublisher, title=pname, author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount)
+    return render_template('books/index.html', books=pbypublisher, title=pname, author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount, publishers=publishers(), categories=categories(), authors=authors())
 
 @app.route('/addpublisher', methods=['GET', 'POST'])
 def addpublisher():
@@ -69,7 +111,7 @@ def addpublisher():
         flash(f'The Publisher {getpublisher} was added to your database', 'success')
         db.session.commit()
         return redirect(url_for('addpublisher'))
-    return render_template('books/addpublisher.html', publisherss='publisherss')
+    return render_template('books/addpublisher.html', publisherss='publisherss', publishers=publishers(), categories=categories(), authors=authors())
 
 
 @app.route('/updatepublisher/<int:id>', methods=['GET', 'POST'])
@@ -87,7 +129,7 @@ def updatepublisher(id):
         db.session.commit()
         return redirect(url_for('publishers'))
         
-    return render_template('books/updatepublisher.html', title='Update publisher page', updatepublisher=updatepublisher)
+    return render_template('books/updatepublisher.html', title='Update publisher page', updatepublisher=updatepublisher, publishers=publishers(), categories=categories(), authors=authors())
 
 @app.route('/deletepublisher/<int:id>', methods=['POST'])
 def deletepublisher(id):
@@ -121,7 +163,7 @@ def get_category(id):
         author_write_book[book.ISBN] = author
         book_belongs_to_category[book.ISBN] = category
         book_discount[book.ISBN] = [int(discount[0]*100), book.price*(1 - discount[0])] if discount[0] else [0, book.price]
-    return render_template('books/index.html', books=pbycategory, title=category_name, author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount)
+    return render_template('books/index.html', books=pbycategory, title=category_name, author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount, publishers=publishers(), categories=categories(), authors=authors())
 
 @app.route('/addcategory', methods=['GET', 'POST'])
 def addcategory():
@@ -136,7 +178,7 @@ def addcategory():
         flash(f'The Category {getcategory} was added to your database', 'success')
         db.session.commit()
         return redirect(url_for('addcategory'))
-    return render_template('books/addpublisher.html')
+    return render_template('books/addpublisher.html', publishers=publishers(), categories=categories(), authors=authors())
 
 @app.route('/updatecategory/<int:id>', methods=['GET', 'POST'])
 def updatecategory(id):
@@ -151,7 +193,7 @@ def updatecategory(id):
         db.session.commit()
         return redirect(url_for('categories'))
     
-    return render_template('books/updatepublisher.html', title="Update category page", updatecategory=updatecategory)
+    return render_template('books/updatepublisher.html', title="Update category page", updatecategory=updatecategory, publishers=publishers(), categories=categories(), authors=authors())
 
 @app.route('/deletecategory/<int:id>', methods=['POST'])
 def deletecategory(id):
@@ -187,7 +229,7 @@ def get_author(id):
         author_write_book[book.ISBN] = author
         book_belongs_to_category[book.ISBN] = category
         book_discount[book.ISBN] = [int(discount[0]*100), book.price*(1 - discount[0])] if discount[0] else [0, book.price]
-    return render_template('books/index.html', books=pbyauthor, title=authorname, author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount)
+    return render_template('books/index.html', books=pbyauthor, title=authorname, author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount, publishers=publishers(), categories=categories(), authors=authors())
 
 @app.route('/addauthor', methods=['GET', 'POST'])
 def addauthor():
@@ -205,7 +247,7 @@ def addauthor():
         flash(f'The author {getfn} {getmn} {getln} was added to your database', 'success')
         db.session.commit()
         return redirect(url_for('addauthor'))
-    return render_template('books/addpublisher.html', authorss='authorss')
+    return render_template('books/addpublisher.html', authorss='authorss', publishers=publishers(), categories=categories(), authors=authors())
 
 @app.route('/updateauthor/<int:id>', methods=['GET', 'POST'])
 def updateauthor(id):
@@ -226,7 +268,7 @@ def updateauthor(id):
         db.session.commit()
         return redirect(url_for('authors'))
         
-    return render_template('books/updatepublisher.html', title='Update author page', updateauthor=updateauthor)
+    return render_template('books/updatepublisher.html', title='Update author page', updateauthor=updateauthor, publishers=publishers(), categories=categories(), authors=authors())
 
 @app.route('/deleteauthor/<int:id>', methods=['POST'])
 def deleteauthor(id):
@@ -260,7 +302,7 @@ def get_discount(id):
         author_write_book[book.ISBN] = author
         book_belongs_to_category[book.ISBN] = category
         book_discount[book.ISBN] = [int(discount[0]*100), book.price*(1 - discount[0])] if discount[0] else [0, book.price]
-    return render_template('books/index.html', books=pbydiscount, title=discountname, author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount)
+    return render_template('books/index.html', books=pbydiscount, title=discountname, author_write_book=author_write_book, book_belongs_to_category=book_belongs_to_category, book_discount=book_discount, publishers=publishers(), categories=categories(), authors=authors())
 
 @app.route('/adddiscount', methods=['GET', 'POST'])
 def adddiscount():
@@ -276,7 +318,7 @@ def adddiscount():
         flash(f'The discount {getname} was added to your database', 'success')
         db.session.commit()
         return redirect(url_for('adddiscount'))
-    return render_template('books/addpublisher.html', discountss='discountss')
+    return render_template('books/addpublisher.html', discountss='discountss', publishers=publishers(), categories=categories(), authors=authors())
 
 @app.route('/updatediscount/<int:id>', methods=['GET', 'POST'])
 def updatediscount(id):
@@ -297,7 +339,7 @@ def updatediscount(id):
         db.session.commit()
         return redirect(url_for('discounts'))
         
-    return render_template('books/updatepublisher.html', title='Update discount page', updatediscount=updatediscount)
+    return render_template('books/updatepublisher.html', title='Update discount page', updatediscount=updatediscount, publishers=publishers(), categories=categories(), authors=authors())
 
 @app.route('/deletediscount/<int:id>', methods=['POST'])
 def deletediscount(id):
@@ -328,7 +370,7 @@ def single_book(isbn):
     discountprice = book.price * (1 - (discountmax if discountmax else 0))
     discount = db.session.query(Discount).filter_by(value=discountmax).first_or_404() if discountmax else None
     pid = db.session.query(Publisher).filter_by(name=book.Pname).first_or_404().id
-    return render_template('books/single_book.html', book=book, author=author, category=category, discountprice=discountprice, pid=pid, discount=discount)
+    return render_template('books/single_book.html', book=book, author=author, category=category, discountprice=discountprice, pid=pid, discount=discount, publishers=publishers(), categories=categories(), authors=authors())
 
 @app.route('/addbook', methods=['POST', 'GET'])
 def addbook():
@@ -456,7 +498,7 @@ def updatebook(isbn):
     form.shortdesc.data = book.shortdesc
     form.longdesc.data = book.longdesc
     return render_template('books/updatebook.html', title='Update book page', 
-                           form=form, discounts=discounts, old_discount=old_discount)
+                           form=form, discounts=discounts, old_discount=old_discount, publishers=publishers(), categories=categories(), authors=authors())
     
 @app.route('/deletebook/<string:isbn>', methods=['POST'])
 def deletebook(isbn):
