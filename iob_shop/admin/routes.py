@@ -35,7 +35,7 @@ def authors():
 def categories():
     if 'email' not in session:
         flash('Please login first', 'danger')
-        return render_template(url_for('login'))
+        return redirect(url_for('login'))
     categories = db.session.query(Category).order_by(Category.id.desc()).all()
     return render_template('admin/publishers.html', title='Categories', categories=categories)
 
@@ -67,7 +67,7 @@ def login():
         admin = db.session.query(Admin).filter_by(email=form.email.data).first()
         if admin and bcrypt.check_password_hash(admin.password, form.password.data):
             session['email'] = form.email.data
-            flash(f'Welcom {form.email.data}! You\'re loged in now', 'success')
+            flash(f'Welcome {form.email.data}! You\'re loged in now', 'success')
             return redirect(request.args.get('next') or url_for('admin'))
         else:
             flash('Wrong Password please try again', 'danger')
