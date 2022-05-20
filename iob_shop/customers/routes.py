@@ -25,7 +25,7 @@ stripe.api_key = 'sk_test_51L0av7HsWqb2EgUCT2LKZMcqIADQyiQKEINCZ49NcFv1Ixqqozh4j
 @login_required
 def payment():
     invoice = request.form.get('invoice')
-    grandTotal = request.form.get('grandTotal')
+    strgrand = request.form.get('strgrand')
     customer = stripe.Customer.create(
         email=request.form['stripeEmail'],
         source=request.form['stripeToken'],
@@ -34,7 +34,7 @@ def payment():
     charge = stripe.Charge.create(
         customer=customer.id,
         description='IOB',
-        amount=grandTotal,
+        amount=strgrand,
         currency='usd',
     )
     orders = CustomerOrder.query.filter_by(customer_id=current_user.id, invoice=invoice).order_by(CustomerOrder.id.desc()).first()
@@ -126,7 +126,7 @@ def orders(invoice):
             discount = float(book['discountmax']) * float(book['price'])
             subTotal += (float(book['price']) - discount)* int(book['quantity'])
             grandTotal = subTotal
-            strgrand = str(grandTotal *10).replace('.','')
+            strgrand = ("%.2f" % float(grandTotal)).replace('.','')
     
     else:
         return redirect(url_for('customerLogin'))

@@ -1,4 +1,3 @@
-from email.policy import default
 from flask_wtf.file import FileAllowed, FileField, FileRequired
 from wtforms import Form, IntegerField, StringField, BooleanField, TextAreaField, DecimalField, validators
 

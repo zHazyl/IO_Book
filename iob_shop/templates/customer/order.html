@@ -83,7 +83,7 @@
         </form>
         {% if orders.status != 'Paid' %}
         <form action="{{url_for('payment')}}" method="POST" >
-          <input type="hidden" name="grandTotal" value="{{strgrand}}">
+          <input type="hidden" name="strgrand" value="{{strgrand}}">
           <input type="hidden" name="invoice" value="{{orders.invoice}}">
           <script
             src="https://checkout.stripe.com/checkout.js"
