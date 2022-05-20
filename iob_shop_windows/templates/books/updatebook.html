@@ -1,0 +1,105 @@
+{% extends 'layout.html' %} {% block content %}
+<div class="row">
+  <div class="col-md-2"></div>
+  <div class="col-md-8">
+    <h2 class="text-center bg-info p-2">Update book</h2>
+    {% from "includes/_formhelpers.html" import render_field %}
+    <form action="" method="POST" enctype="multipart/form-data">
+      {{ render_field(form.isbn, class="form-control", placeholder="ISBN")}} {{
+      render_field(form.title, class="form-control", placeholder="Title")}} {{
+      render_field(form.edition, class="form-control", placeholder="Edition")}}
+      {{ render_field(form.publish_date, class="form-control",
+      placeholder="Publish date")}} {{ render_field(form.price,
+      class="form-control",placeholder="Price")}} {{ render_field(form.stock,
+      class="form-control", placeholder="Stock")}} {{
+      render_field(form.sales_amount, class="form-control", placeholder="Sales amount")}} 
+
+      <label for="publisher"><strong>Publisher</strong></label>
+        <select
+          name="publisher"
+          id="publisher"
+          class="form-control mb-2"
+          required
+        >
+          <option value="">Select a publisher</option>
+          {% for publisher in publishers %}
+          <option value="{{publisher.name}}">{{publisher.name}}</option>
+          {% endfor %}
+        </select>
+        <label for="category"><strong>Category</strong> </label>
+        <select
+          name="category"
+          id="category"
+          class="form-control mb-2"
+          multiple
+          data-live-search="true"
+          required
+        >
+          {% for category in categories %}
+          <option value="{{category.name}}">{{category.name}}</option>
+          {% endfor %}
+        </select>
+
+        <label for="author"><strong>Author</strong></label>
+        <select
+          name="author"
+          id="author"
+          class="form-control mb-2"
+          multiple
+          data-live-search="true"
+          required
+        >
+          {% for author in authors %}
+          <option value="{{author.phone_num}}">
+            {{author.Fname}} {% if author.Mname %}{{author.Mname}} {% endif
+            %}{{author.Lname}}
+          </option>
+          {% endfor %}
+        </select>
+
+      
+      <label for="discount"><strong>Discount</strong></label>
+      <select
+        name="discount"
+        id="discount"
+        class="form-control mb-2"
+        multiple
+        data-live-search="true"
+        required
+      >
+        <option value="0">None</option>
+        {% for discount in discounts %}
+          {% if discount.id in old_discount %}
+            <option value="{{discount.id}}" selected>{{discount.name}}</option>
+          {% else %}
+            <option value="{{discount.id}}">{{discount.name}}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      
+      {{ render_field(form.shortdesc, class="form-control",
+      placeholder="Short description", rows="3")}} {{
+      render_field(form.longdesc, class="form-control", placeholder="Long description", rows="10")}}
+
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4">
+            {{ render_field(form.image_1, class="form-control") }}
+          </div>
+          <div class="col-md-4">
+            {{ render_field(form.image_2, class="form-control") }}
+          </div>
+          <div class="col-md-4">
+            {{ render_field(form.image_3, class="form-control") }}
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-outline-info mt-4 mb-5">
+        Update
+      </button>
+    </form>
+  </div>
+  <div class="col-md-2"></div>
+</div>
+{% endblock content %}

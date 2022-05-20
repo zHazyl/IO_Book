@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+<div class="container mt-5">
+    <table class="table table-sm table-condensed table-striped table-hover">
+        <thead>
+            <th>Sr</th>
+            <th>Book title</th>
+            <th>Price</th>
+            <th>Image</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </thead>
+        <tbody>
+            {% for book in books %}
+                <tr>
+                    <td>{{loop.index}}</td>
+                    <td>{{book.title}}</td>
+                    <td>{{book.price|float}}</td>
+                    <!-- <td>{{book.discount}}%</td> -->
+                    <td><img src="{{url_for('static', filename='images/book/' + book.image_1)}}" width="50" height="40"/></td>
+                    <td><a href="{{url_for('updatebook', isbn=book.ISBN)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
+                    <td>
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-{{book.ISBN}}">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Modal -->
+                <div class="modal fade" id="modal-{{book.ISBN}}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">{{book.title}}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <span class="text">Are you sure that want to delete this book {{book.title}}</span>
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form action="{{url_for('deletebook', isbn=book.ISBN)}}" method="POST">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/addbook" class="btn btn-sm btn-primary">Add</a>
+</div>
+{% endblock content %}

@@ -1,0 +1,176 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h1>{{title[0:-5]}}</h1><br/>
+    <table class="table table-sm table-condensed table-striped table-hover">
+        <thead>
+            <th>Sr</th>
+            <th>Name</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </thead>
+        <tbody>
+            {% if publishers %}
+            {% for publisher in publishers %}
+            <tr>
+                <td>{{loop.index}}</td>
+                <td>{{publisher.name}}</td>
+                <td><a href="{{url_for('updatepublisher', id=publisher.id)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
+                <td>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-{{publisher.id}}">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+
+            <!-- Modal -->
+            <div class="modal fade" id="modal-{{publisher.id}}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">{{publisher.name}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <span class="text">Are you sure that want to delete this publisher {{publisher.name}}</span>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{{url_for('deletepublisher', id=publisher.id)}}" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    </div>
+                </div>
+                </div>
+            </div>
+  
+            {% endfor %}
+
+            {% elif authors %}
+            {% for author in authors %}
+            <tr>
+                <td>{{loop.index}}</td>
+                <td>{{author.Fname}} {% if author.Mname %}{{author.Mname}} {% endif %}{{author.Lname}}</td>
+                <td><a href="{{url_for('updateauthor', id=author.id)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
+                <td>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-{{author.id}}">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+
+            <!-- Modal -->
+            <div class="modal fade" id="modal-{{author.id}}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">{{author.name}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <span class="text">Are you sure that want to delete this author {{author.name}}</span>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{{url_for('deleteauthor', id=author.id)}}" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    </div>
+                </div>
+                </div>
+            </div>
+  
+            {% endfor %}
+
+            {% elif discounts %}
+            {% for discount in discounts %}
+            <tr>
+                <td>{{loop.index}}</td>
+                <td>{{discount.name}}</td>
+                <td><a href="{{url_for('updatediscount', id=discount.id)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
+                <td>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-{{discount.id}}">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+
+            <!-- Modal -->
+            <div class="modal fade" id="modal-{{discount.id}}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">{{discount.name}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <span class="text">Are you sure that want to delete this discount {{discount.name}}</span>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{{url_for('deletediscount', id=discount.id)}}" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    </div>
+                </div>
+                </div>
+            </div>
+  
+            {% endfor %}
+
+            {% else %}
+            {% for category in categories %}
+                <tr>
+                    <td>{{loop.index}}</td>
+                    <td>{{category.name}}</td>
+                    <td><a href="{{url_for('updatecategory', id=category.id)}}" class="btn btn-sm btn-outline-info">Edit</a></td>
+                    <td>
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-{{category.id}}">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+
+            <!-- Modal -->
+            <div class="modal fade" id="modal-{{category.id}}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">{{category.name}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <span class="text">Are you sure that want to delete this category {{category.name}}</span>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{{url_for('deletecategory', id=category.id)}}" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+    {% if publishers %}
+        <a href="/addpublisher" class="btn btn-sm btn-primary">Add publisher</a>
+    {% elif authors %}
+        <a href="/addauthor" class="btn btn-sm btn-primary">Add author</a>
+    {% elif discounts %}
+        <a href="/adddiscount" class="btn btn-sm btn-primary">Add discount</a>
+    {% else %}
+        <a href="/addcategory" class="btn btn-sm btn-primary">Add category</a>
+    {% endif %}
+</div>
+
+{% endblock content %}

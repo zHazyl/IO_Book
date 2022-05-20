@@ -1,0 +1,49 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            {% if publisherss %}
+                <h1 class="text-center mt-5">Add a publisher</h1>
+                <form action="" method="POST">
+                    <input type="text" name="id" class="form-control" placeholder="ID">
+                    <input type="text" name="publisher" class="form-control mt-1" placeholder="Name">
+                    <input type="text" name="phone" class="form-control mt-1" placeholder="Phone">
+                    <input type="submit" value="Add publisher" class="btn btn-info mt-2">
+                </form>
+            {% elif authorss %}
+                <h1 class="text-center mt-5">Add a author</h1>
+                <form action="" method="POST">
+                    <input type="text" name="id" class="form-control" placeholder="ID">
+                    <input type="text" name="fn" class="form-control mt-1" placeholder="First name">
+                    <input type="hidden" name="mn" class="form-control mt-1" placeholder="Mid name">
+                    <input type="text" name="ln" class="form-control mt-1" placeholder="Last name">
+                    <input type="text" name="phone" class="form-control mt-1" placeholder="Phone">
+                    <input type="submit" value="Add author" class="btn btn-info mt-2">
+                </form>
+
+            {% elif discountss %}
+                <h1 class="text-center mt-5">Add a discount</h1>
+                <form action="" method="POST">
+                    <input type="text" name="id" class="form-control" placeholder="ID">
+                    <input type="text" name="name" class="form-control mt-1" placeholder="Name">
+                    <input type="text" name="value" class="form-control mt-1" placeholder="Value">
+                    <input type="submit" value="Add discount" class="btn btn-info mt-2">
+                </form>
+
+            {% else %}
+                <h1 class="text-center mt-5">Add a category</h1>
+                <form action="" method="POST">
+                    <input type="text" name="id" class="form-control" placeholder="ID">
+                    <input type="text" name="category" class="form-control mt-1" placeholder="Name">
+                    <input type="submit" value="Add category" class="btn btn-info mt-2">
+                </form>
+            {% endif %}
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+</div>
+
+{% endblock content %}
