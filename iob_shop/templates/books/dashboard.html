@@ -1,0 +1,152 @@
+{%extends 'layout.html'%}{% block content %}
+<style>
+    body {
+      background: #ffffff;
+      font-family: "Open Sans", sans-serif;
+    }
+    table, th, td {
+  border: 1px solid black;
+}
+th{
+    font-weight: bold;
+  text-align: center;
+}
+  </style>
+
+<div class="container mt-5">
+<div style="text-align: center">
+    <div class="card card-style mb-2">
+        <div class="card-body">
+            <div class="chart-container" style="position: relative;">
+                <canvas id="sales2"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <div class="card card-style mb-2">
+        <div class="card-body">
+            <div class="chart-container" style="position: relative;">
+                <canvas id="sales3"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% block javascript %}
+<canvas id="mychart" max-width="100" max-height="100">
+<script>
+    Chart.scaleService.updateScaleDefaults('linear', {
+                ticks: {
+                    min: 0
+                }
+        });
+
+    let DB = JSON.parse({{quarterSales | tojson }});
+    
+        let income_vs_category_chart = new Chart(sales2, {
+            type: 'bar',
+            data: {
+                labels: ['Quý 1', 'Quý 2','Quý 3', 'Quý 4'],
+                datasets: [{
+                    label: "Doanh thu",
+                    data: DB,
+            backgroundColor: ['#5DA5DA ','#5DA5DA ','#5DA5DA ','#5DA5DA '],
+            borderWidth: 0,
+            hoverBorderColor: "black",
+            hoverBorderWidth: 2,
+            hoverBackgroundColor: '#5DA5DA ',
+            pointHoverRadius: 5
+        }],
+            },
+        options: {
+                title: {
+                    display: true,
+                        text: "Doanh thu",
+                            fontSize: 20,
+            },
+                legend: {
+                    position: "right",
+                        labels: {
+                        fontColor: "gray"
+                    },
+                    display: true,
+            },
+
+                elements: {
+                    hitRadius: 3,
+            }
+            }
+        })
+        let LB = JSON.parse({{labels | tojson }});
+        let DBCO = JSON.parse({{quantity_customer_order | tojson }});
+        new Chart(document.getElementById("sales3"), {
+                type: "line",
+                data: {
+                labels: LB,
+                datasets: [{
+                    label: "Khách hàng",
+                    data: DBCO,
+                        fill: false,
+                        borderColor: "rgb(75, 192, 192)",
+                        lineTension: 0.1
+                    }]
+                
+                },
+                options: {
+                    title: {
+                    display: true,
+                        text: "Sô lượng khách hàng order theo ngày",
+                            fontSize: 20,
+            },
+                legend: {
+                    position: "right",
+                        labels: {
+                        fontColor: "gray"
+                    },
+                    display: true,
+            },
+
+                elements: {
+                    hitRadius: 3,
+            }
+                }
+            });
+
+</script>
+</canvas>  
+<div class="Container">
+    <div class="table-responsive">
+<table id="data" style="margin-left: 10px;width: 1000px;" class="table .table-bordered">
+    <h1 style="text-align: center">Best Sellers</h1>
+    <thead style="background-color: chartreuse;">
+      <tr>
+        <th style="width:70;">Hạng</th>
+        <th style="width:50%;">Tên sách</th>
+        <th style="width:70;">Số lượng đã bán</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sale in bestSaler %}
+      {% if sale[0]==1 %}
+      <tr style="font-weight: bold;font-size: 20px;">
+          <td><b>{{ sale[0] }}</b></td>
+          <td>{{ sale[1] }}</td>
+          <td>{{ sale[2] }}</td>
+        </tr>
+      {% else %}
+        <tr>
+          <td>{{ sale[0] }}</td>
+          <td>{{ sale[1] }}</td>
+          <td>{{ sale[2] }}</td>
+        </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  </div>
+{% endblock javascript %}
+
+</div>
+{% endblock content%}

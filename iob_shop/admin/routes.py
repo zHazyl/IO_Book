@@ -37,7 +37,7 @@ def categories():
         flash('Please login first', 'danger')
         return redirect(url_for('login'))
     categories = db.session.query(Category).order_by(Category.id.desc()).all()
-    return render_template('admin/publishers.html', title='Categories', categories=categories)
+    return render_template('admin/publishers.html', title='Categories page', categories=categories)
 
 @app.route('/discounts')
 def discounts():
@@ -77,3 +77,4 @@ def login():
 def logout():
     session.pop('email', None)
     return redirect(url_for('home'))
+

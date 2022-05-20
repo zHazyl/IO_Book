@@ -7,6 +7,7 @@ import json
 def user_loader(user_id):
     return db.session.query(Customer).filter_by(id=int(user_id)).first_or_404()
 
+SalesAmount=Base.classes.quarterlyrevenue
 
 class JsonEncodedDict(db.TypeDecorator):
     impl = db.Text
@@ -31,5 +32,6 @@ class CustomerOrder(db.Model):
     
     def __repr__(self):
         return '<CustomerOrder %r>' % self.invoice
-    
+
+
 db.create_all()

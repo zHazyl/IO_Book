@@ -1,5 +1,4 @@
-from crypt import methods
-from typing import Dict
+
 from flask import redirect, request, url_for, render_template, flash, session, current_app
 from sqlalchemy import func
 from iob_shop import db, app, photos
@@ -27,7 +26,6 @@ def AddToCart():
             DictItems = {book_isbn:{'title':book.title, 'price':book.price, 'quantity':quantity, 'discountmax':discountmax, 'discountprice':discountprice,'image':book.image_1,'stock':book.stock}}
             
             if 'Shoppingcart' in session:
-                print(session['Shoppingcart'])
                 if book_isbn in session['Shoppingcart']:
                     for key, item in session['Shoppingcart'].items():
                         if int(key) == int(book_isbn):
@@ -49,7 +47,7 @@ def get_cart():
     if 'Shoppingcart' not in session or len(session['Shoppingcart']) <= 0:
         return redirect(url_for('home'))
     grandtotal = 0
-    a = request.form.get('quantity')
+    # a = request.form.get('quantity')
     for key, book in session['Shoppingcart'].items():
         grandtotal += float(book['discountprice']) * float(book['quantity'])
     return render_template('books/carts.html', title='Cart', grandtotal=grandtotal, publishers=publishers(), categories=categories(), authors=authors())

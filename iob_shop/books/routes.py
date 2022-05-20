@@ -1,4 +1,3 @@
-from unicodedata import category
 from click import File
 from flask import redirect, request, url_for, render_template, flash, session, current_app
 from flask_login import current_user
@@ -172,7 +171,7 @@ def addcategory():
     if request.method == 'POST':
         getcategory = request.form.get('category')
         getid = request.form.get('id')
-        category = Category(name=getcategory, id=id)
+        category = Category(name=getcategory, id=getid)
         db.session.add(category)
         flash(f'The Category {getcategory} was added to your database', 'success')
         db.session.commit()
