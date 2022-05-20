@@ -369,7 +369,7 @@ def single_book(isbn):
     discountprice = book.price * (1 - (discountmax if discountmax else 0))
     discount = db.session.query(Discount).filter_by(value=discountmax).first_or_404() if discountmax else None
     pid = db.session.query(Publisher).filter_by(name=book.Pname).first_or_404().id
-    return render_template('books/single_book.html', book=book, author=author, category=category, discountprice=discountprice, pid=pid, discount=discount, publishers=publishers(), categories=categories(), authors=authors())
+    return render_template('books/single_book.html', book=book, author=author, category=category, discountprice=discountprice, pid=pid, discount=discount, publishers=publishers(), categories=categories(), authors=authors(), title=book.title)
 
 @app.route('/addbook', methods=['POST', 'GET'])
 def addbook():

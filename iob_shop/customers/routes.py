@@ -8,6 +8,8 @@ from iob_shop import db, app, photos, search, bcrypt, login_manager
 from iob_shop.admin.routes import publishers, register
 import secrets, os
 from datetime import datetime
+
+from iob_shop.books.models import Book
 from .forms import CustomerLoginForm, CustomerRegisterForm
 from .models import Customer, CustomerOrder
 import pdfkit
@@ -94,6 +96,11 @@ def get_order():
         try:
             order = CustomerOrder(invoice=invoice, customer_id=customer_id, orders=session['Shoppingcart'])
             db.session.add(order)
+            for key, book in order.orders.items():
+                bookk = db.session.query(Book).filter_by(ISBN=key).first()
+                bookk.stock -= int(book['quantity'])
+                bookk.sales_amount += int(book['quantity'])
+                
             db.session.commit()
             session.pop('Shoppingcart')
             flash('Your order has been sent successfully', 'success')
