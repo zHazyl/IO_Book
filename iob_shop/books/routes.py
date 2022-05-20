@@ -274,13 +274,13 @@ def deleteauthor(id):
     if 'email' not in session:
         flash('Please login first', 'danger')
         return render_template(url_for('login'))
-    author = db.session.query(Author).filter_by(id).first_or_404()
+    author = db.session.query(Author).filter_by(id=id).first_or_404()
     if request.method == 'POST':
         db.session.delete(author)
-        flash(f'The author {author.name} was deleted from your database', 'success')
+        flash(f'The author {author.Lname} was deleted from your database', 'success')
         db.session.commit()
         return redirect(url_for('authors'))
-    flash(f'The author {author.name} can\'t be deleted', 'warning')
+    flash(f'The author {author.Lname} can\'t be deleted', 'warning')
     return redirect(url_for('authors'))
 
 @app.route('/discount/<int:id>')
