@@ -1,4 +1,3 @@
-from crypt import methods
 from unicodedata import category
 from urllib import response
 from click import File

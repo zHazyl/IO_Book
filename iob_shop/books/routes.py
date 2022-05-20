@@ -1,4 +1,3 @@
-from crypt import methods
 from unicodedata import category
 from click import File
 from flask import redirect, request, url_for, render_template, flash, session, current_app
