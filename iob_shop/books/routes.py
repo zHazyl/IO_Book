@@ -27,7 +27,7 @@ def authors():
 @app.route('/home')
 def home():
     page = request.args.get('page', 1, type=int)
-    books = db.session.query(Book).filter(Book.stock > 0).paginate(page=page, per_page=15)
+    books = db.session.query(Book).filter(Book.stock > 0).paginate(page=page, per_page=12)
     publishers = db.session.query(Publisher).join(Book, (Publisher.name==Book.Pname)).all()
     categories = db.session.query(Category).join(Book_belongs_to_category, (Category.name==Book_belongs_to_category.category_name)).all()
     authors = db.session.query(Author).join(Author_write_book, (Author.phone_num==Author_write_book.Aphone_num)).all()
@@ -393,8 +393,8 @@ def addbook():
         shortdesc = form.shortdesc.data
         longdesc = form.longdesc.data
         author = request.form.getlist('author')
-        publisher = request.form.get('publisher')
         category = request.form.getlist('category')
+        publisher = request.form.get('publisher')
         discount = request.form.getlist('discount')
         image_1 = photos.save(request.files.get('image_1'), name=secrets.token_hex(10) + '.')
         image_2 = photos.save(request.files.get('image_2'), name=secrets.token_hex(10) + '.')
@@ -428,9 +428,9 @@ def updatebook(isbn):
     if 'email' not in session:
         flash('Please login first', 'danger')
         return redirect(url_for('login'))
-    # publishers = db.session.query(Publisher).all()
-    # categories = db.session.query(Category).all()
-    # authors = db.session.query(Author).all()
+    publishers = db.session.query(Publisher).all()
+    categories = db.session.query(Category).all()
+    authors = db.session.query(Author).all()
     discounts = db.session.query(Discount).all()
     book = db.session.query(Book).filter_by(ISBN=isbn).first_or_404()
     form = Addbook(request.form)
@@ -447,10 +447,20 @@ def updatebook(isbn):
         book.edition = form.edition.data
         book.publish_date = form.publish_date.data
         book.price = form.price.data
+        author = request.form.getlist('author')
+        category = request.form.getlist('category')
         book.stock = form.stock.data
         book.sales_amount = form.sales_amount.data
         book.shortdesc = form.shortdesc.data
         book.longdesc = form.longdesc.data
+        
+        for phone in author:
+            add_auth_book = Author_write_book(Aphone_num=phone, ISBN=isbn)
+            db.session.add(add_auth_book)
+            
+        for name in category:
+            add_cate_book = Book_belongs_to_category(category_name=name, ISBN=isbn)
+            db.session.add(add_cate_book)
         
         for id in old_discount:
             if id not in discount and id != 0:
@@ -498,7 +508,7 @@ def updatebook(isbn):
     form.shortdesc.data = book.shortdesc
     form.longdesc.data = book.longdesc
     return render_template('books/updatebook.html', title='Update book page', 
-                           form=form, discounts=discounts, old_discount=old_discount, publishers=publishers(), categories=categories(), authors=authors())
+                           form=form, discounts=discounts, old_discount=old_discount, publishers=publishers, categories=categories, authors=authors)
     
 @app.route('/deletebook/<string:isbn>', methods=['POST'])
 def deletebook(isbn):

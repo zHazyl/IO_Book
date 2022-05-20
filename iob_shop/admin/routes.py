@@ -70,7 +70,7 @@ def login():
             flash(f'Welcome {form.email.data}! You\'re loged in now', 'success')
             return redirect(request.args.get('next') or url_for('admin'))
         else:
-            flash('Wrong Password please try again', 'danger')
+            flash('Wrong email or password please try again', 'danger')
     return render_template('admin/login.html', form=form, title='Login Page')
 
 @app.route('/logout')

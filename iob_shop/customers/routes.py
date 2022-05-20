@@ -37,7 +37,8 @@ def payment():
     orders = CustomerOrder.query.filter_by(customer_id=current_user.id, invoice=invoice).order_by(CustomerOrder.id.desc()).first()
     orders.status = 'Paid'
     db.session.commit()
-    return redirect(url_for('thanks'))
+    flash('Thanks for shipping!!', 'success')
+    return redirect(url_for('profile'))
 
 @app.route('/thanks')
 def thanks():

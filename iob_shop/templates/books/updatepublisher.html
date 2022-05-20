@@ -22,6 +22,16 @@
                     <input type="submit" value="Update" class="btn btn-info mt-2"/>
                 </form>
                 <a href="{{url_for('discounts')}}" class="btn btn-secondary" style="margin-top: -65px; margin-left: 90px;">Cancel</a>
+            {% elif updateauthor %}
+                <h1 class="text-center mt-5">Update author</h1>
+                <form action="" method="POST">
+                    <input type="text" name="fn" class="form-control mt-1" value="{{updateauthor.Fname}}">
+                    <input type="text" name="mn" class="form-control mt-1" value="{{updateauthor.Mname}}">
+                    <input type="text" name="ln" class="form-control mt-1" value="{{updateauthor.Lname}}">
+                    <input type="text" name="phone" class="form-control mt-1" value="{{updateauthor.phone_num}}">
+                    <input type="submit" value="Update" class="btn btn-info mt-2"/>
+                </form>
+                <a href="{{url_for('authors')}}" class="btn btn-secondary" style="margin-top: -65px; margin-left: 90px;">Cancel</a>
             {% else %}
                 <h1 class="text-center mt-5">Update category</h1>
                 <form action="" method="POST">

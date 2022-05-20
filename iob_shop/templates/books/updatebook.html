@@ -13,6 +13,50 @@
       class="form-control",placeholder="Price")}} {{ render_field(form.stock,
       class="form-control", placeholder="Stock")}} {{
       render_field(form.sales_amount, class="form-control", placeholder="Sales amount")}} 
+
+      <label for="publisher"><strong>Publisher</strong></label>
+        <select
+          name="publisher"
+          id="publisher"
+          class="form-control mb-2"
+          required
+        >
+          <option value="">Select a publisher</option>
+          {% for publisher in publishers %}
+          <option value="{{publisher.name}}">{{publisher.name}}</option>
+          {% endfor %}
+        </select>
+        <label for="category"><strong>Category</strong> </label>
+        <select
+          name="category"
+          id="category"
+          class="form-control mb-2"
+          multiple
+          data-live-search="true"
+          required
+        >
+          {% for category in categories %}
+          <option value="{{category.name}}">{{category.name}}</option>
+          {% endfor %}
+        </select>
+
+        <label for="author"><strong>Author</strong></label>
+        <select
+          name="author"
+          id="author"
+          class="form-control mb-2"
+          multiple
+          data-live-search="true"
+          required
+        >
+          {% for author in authors %}
+          <option value="{{author.phone_num}}">
+            {{author.Fname}} {% if author.Mname %}{{author.Mname}} {% endif
+            %}{{author.Lname}}
+          </option>
+          {% endfor %}
+        </select>
+
       
       <label for="discount"><strong>Discount</strong></label>
       <select

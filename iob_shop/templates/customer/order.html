@@ -81,6 +81,7 @@
             Get PDF
           </button>
         </form>
+        {% if orders.status != 'Paid' %}
         <form action="{{url_for('payment')}}" method="POST" >
           <input type="hidden" name="grandTotal" value="{{strgrand}}">
           <input type="hidden" name="invoice" value="{{orders.invoice}}">
@@ -94,6 +95,7 @@
             data-currency="usd">
           </script>
         </form>
+        {% endif %}
     </div>
   </div>
 </div>
