@@ -453,12 +453,18 @@ def updatebook(isbn):
         book.longdesc = form.longdesc.data
         
         for phone in author:
-            add_auth_book = Author_write_book(Aphone_num=phone, ISBN=isbn)
-            db.session.add(add_auth_book)
+            try: 
+                db.session.query(Author_write_book).filter_by(ISBN=isbn, Aphone_num=phone).first_or_404()
+            except:
+                add_auth_book = Author_write_book(Aphone_num=phone, ISBN=isbn)
+                db.session.add(add_auth_book)
             
         for name in category:
-            add_cate_book = Book_belongs_to_category(category_name=name, ISBN=isbn)
-            db.session.add(add_cate_book)
+            try:
+                db.session.query(Book_belongs_to_category).filter_by(category_name=name, ISBN=isbn).first_or_404()
+            except:
+                add_cate_book = Book_belongs_to_category(category_name=name, ISBN=isbn)
+                db.session.add(add_cate_book)
         
         for id in old_discount:
             if id not in discount and id != 0:
