@@ -23,7 +23,11 @@
         >
           <option value="">Select a publisher</option>
           {% for publisher in publishers %}
+          {% if publisher.name == old_publisher %}
+          <option value="{{publisher.name}}" selected>{{publisher.name}}</option>
+          {% else %}
           <option value="{{publisher.name}}">{{publisher.name}}</option>
+          {% endif %}
           {% endfor %}
         </select>
         <label for="category"><strong>Category</strong> </label>
@@ -36,7 +40,11 @@
           required
         >
           {% for category in categories %}
+          {% if category.name in old_category %}
+          <option value="{{category.name}}" selected>{{category.name}}</option>
+          {% else %}
           <option value="{{category.name}}">{{category.name}}</option>
+          {% endif %}
           {% endfor %}
         </select>
 
@@ -50,10 +58,17 @@
           required
         >
           {% for author in authors %}
+          {% if author.phone_num in old_author %}
+          <option value="{{author.phone_num}}" selected>
+            {{author.Fname}} {% if author.Mname %}{{author.Mname}} {% endif
+            %}{{author.Lname}}
+          </option>
+          {% else %}
           <option value="{{author.phone_num}}">
             {{author.Fname}} {% if author.Mname %}{{author.Mname}} {% endif
             %}{{author.Lname}}
           </option>
+          {% endif %}
           {% endfor %}
         </select>
 

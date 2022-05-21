@@ -438,6 +438,8 @@ def updatebook(isbn):
     discount = [int(i) for i in request.form.getlist('discount')]
     # old_discount = db.session.query(Book_discount).with_entities(Book_discount.discount_id).filter_by(book_id=isbn).all() multiple entities use this
     old_discount = [i[0] for i in db.session.query(Book_discount.discount_id).filter_by(book_id=isbn).all()]
+    old_author = [i[0] for i in db.session.query(Author_write_book.Aphone_num).filter_by(ISBN=isbn).all()]
+    old_category = [i[0] for i in db.session.query(Book_belongs_to_category.category_name).filter_by(ISBN=isbn).all()]
     
     if request.method == 'POST':
         book.ISBN = form.isbn.data
@@ -447,28 +449,35 @@ def updatebook(isbn):
         book.price = form.price.data
         author = request.form.getlist('author')
         category = request.form.getlist('category')
+        book.Pname = request.form.get('publisher')
         book.stock = form.stock.data
         book.sales_amount = form.sales_amount.data
         book.shortdesc = form.shortdesc.data
         book.longdesc = form.longdesc.data
-        
+                
+        for phone in old_author:
+            if phone not in author:
+                delauthor = db.session.query(Author_write_book).filter_by(ISBN=isbn, Aphone_num=phone).first_or_404()
+                db.session.delete(delauthor)
+
         for phone in author:
-            try: 
-                db.session.query(Author_write_book).filter_by(ISBN=isbn, Aphone_num=phone).first_or_404()
-            except:
+            if phone not in old_author:
                 add_auth_book = Author_write_book(Aphone_num=phone, ISBN=isbn)
                 db.session.add(add_auth_book)
-            
+        
+        for name in old_category:
+            if name not in category:
+                delcategory = db.session.query(Book_belongs_to_category).filter_by(category_name=name, ISBN=isbn).first_or_404()
+                db.session.delete(delcategory)
+                
         for name in category:
-            try:
-                db.session.query(Book_belongs_to_category).filter_by(category_name=name, ISBN=isbn).first_or_404()
-            except:
+            if name not in old_category:
                 add_cate_book = Book_belongs_to_category(category_name=name, ISBN=isbn)
                 db.session.add(add_cate_book)
         
         for id in old_discount:
             if id not in discount and id != 0:
-                deldiscount = db.session.query(Discount).filter_by(id=id).first_or_404()
+                deldiscount = db.session.query(Book_discount).filter_by(discount_id=id).first_or_404()
                 db.session.delete(deldiscount)
         
         for id in discount:
@@ -512,7 +521,7 @@ def updatebook(isbn):
     form.shortdesc.data = book.shortdesc
     form.longdesc.data = book.longdesc
     return render_template('books/updatebook.html', title='Update book page', 
-                           form=form, discounts=discounts, old_discount=old_discount, publishers=publishers, categories=categories, authors=authors)
+                           form=form, discounts=discounts, old_publisher=book.Pname, old_discount=old_discount, old_author=old_author, old_category=old_category, publishers=publishers, categories=categories, authors=authors)
     
 @app.route('/deletebook/<string:isbn>', methods=['POST'])
 def deletebook(isbn):
