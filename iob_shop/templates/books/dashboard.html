@@ -47,9 +47,9 @@ th{
         let income_vs_category_chart = new Chart(sales2, {
             type: 'bar',
             data: {
-                labels: ['Quý 1', 'Quý 2','Quý 3', 'Quý 4'],
+                labels: ['Precious 1', 'Precious 2','Precious 3', 'Precious 4'],
                 datasets: [{
-                    label: "Doanh thu",
+                    label: "Turnover",
                     data: DB,
             backgroundColor: ['#5DA5DA ','#5DA5DA ','#5DA5DA ','#5DA5DA '],
             borderWidth: 0,
@@ -62,7 +62,7 @@ th{
         options: {
                 title: {
                     display: true,
-                        text: "Doanh thu",
+                        text: "Turnover",
                             fontSize: 20,
             },
                 legend: {
@@ -85,7 +85,7 @@ th{
                 data: {
                 labels: LB,
                 datasets: [{
-                    label: "Khách hàng",
+                    label: "Customer",
                     data: DBCO,
                         fill: false,
                         borderColor: "rgb(75, 192, 192)",
@@ -96,7 +96,7 @@ th{
                 options: {
                     title: {
                     display: true,
-                        text: "Sô lượng khách hàng order theo ngày",
+                        text: "Customer per day",
                             fontSize: 20,
             },
                 legend: {
@@ -121,9 +121,9 @@ th{
     <h1 style="text-align: center">Best Sellers</h1>
     <thead style="background-color: chartreuse;">
       <tr>
-        <th style="width:70;">Hạng</th>
-        <th style="width:50%;">Tên sách</th>
-        <th style="width:70;">Số lượng đã bán</th>
+        <th style="width:70;">Rank</th>
+        <th style="width:50%;">Book title</th>
+        <th style="width:70;">Sales amount</th>
       </tr>
     </thead>
     <tbody>

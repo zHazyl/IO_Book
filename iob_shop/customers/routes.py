@@ -11,11 +11,10 @@ from datetime import datetime
 
 from iob_shop.books.models import Book
 from .forms import CustomerLoginForm, CustomerRegisterForm
-from .models import Customer, CustomerOrder,SalesAmount
+from .models import Customer, CustomerOrder, SalesAmount
 from iob_shop.books import Book
 import pdfkit
 import stripe
-import json
 
 publishable_key = 'pk_test_51L0av7HsWqb2EgUCu5BzjdzJdKs3IiXeKAf0dApqs8C4ZXKzEmTf5bfP5JXCPzV4EwNmU6dcNrAUqUiRiOkXn7q3005SniBv9J'
 
@@ -97,14 +96,33 @@ def get_order():
         updateshoppingcart()
         try:
             order = CustomerOrder(invoice=invoice, customer_id=customer_id, orders=session['Shoppingcart'])
-
+            grandTotal=0
+            subTotal=0
             db.session.add(order)
             for key, book in order.orders.items():
                 bookk = db.session.query(Book).filter_by(ISBN=key).first()
                 bookk.stock -= int(book['quantity'])
                 bookk.sales_amount += int(book['quantity'])
-                
-            db.session.commit()
+                discount = float(book['discountmax']) * float(book['price'])
+                subTotal += (float(book['price']) - discount)* int(book['quantity'])
+                grandTotal = subTotal
+            # Tính tổng tiền theo quý
+            date = order.date_created
+            curr_year=db.session.query(SalesAmount).filter_by(year=int(date.year)).first()
+            if curr_year == None:
+                quarterly=SalesAmount(year=int(date.year),quarter1=0,quarter2=0,quarter3=0,quarter4=0)
+                db.session.add(quarterly)
+            else:
+                if int(date.month) in [1,2,3]:
+                    curr_year.quarter1+=grandTotal
+                elif date.month in [4,5,6]:
+                    curr_year.quarter2+=grandTotal
+                elif date.month in [7,8,9]:
+                    curr_year.quarter3+=grandTotal
+                else:
+                    curr_year.quarter4+=grandTotal
+
+            db.session.commit()    
             session.pop('Shoppingcart')
             flash('Your order has been sent successfully', 'success')
             return redirect(url_for('orders', invoice=invoice))
@@ -127,26 +145,8 @@ def orders(invoice):
             subTotal += (float(book['price']) - discount)* int(book['quantity'])
             grandTotal = subTotal
             strgrand = ("%.2f" % float(grandTotal)).replace('.','')
-    
     else:
         return redirect(url_for('customerLogin'))
-    # Tính tổng tiền theo quý
-    date = orders.date_created
-    curr_year=db.session.query(SalesAmount).filter_by(year=int(date.year)).first()
-    if curr_year == None:
-        quarterly=SalesAmount(year=int(date.year),quarter1=0,quarter2=0,quarter3=0,quarter4=0)
-        db.session.add(quarterly)
-    else:
-        if int(date.month) in [1,2,3]:
-            curr_year.quarter1+=grandTotal
-        elif date.month in [4,5,6]:
-            curr_year.quarter2+=grandTotal
-        elif date.month in [7,8,9]:
-            curr_year.quarter3+=grandTotal
-        else:
-            curr_year.quarter4+=grandTotal
-
-    db.session.commit()
     return render_template('customer/order.html', invoice=invoice, strgrand=strgrand, subTotal=subTotal, grandTotal=grandTotal, customer=customer, orders=orders, discount=discount, title='Order')
 
 @app.route('/get_pdf/<invoice>', methods=['POST'])
@@ -185,41 +185,3 @@ def profile():
         return redirect(url_for('customerLogin'))
     
     return render_template('customer/profile.html', customer=customer, orderss=orderss, title='Order')
-
-@app.route('/dashboard')
-def dashboard():
-    if 'email' not in session:
-        flash('Please login first', 'danger')
-        return redirect(url_for('login'))
-    #Doanh thu
-    quarterSales=db.session.query(SalesAmount).filter_by(year=2022).first()
-    sales=[int(quarterSales.quarter1),int(quarterSales.quarter2),int(quarterSales.quarter3),int(quarterSales.quarter4)]
-
-    #Lượng người mua theo ngày
-    labels=[]
-    quantity_customer_order=[]
-    dict_order={}
-    customer_order_day=db.session.query(db.func.count(CustomerOrder.customer_id), CustomerOrder.date_created).group_by(CustomerOrder.date_created).order_by(CustomerOrder.date_created).all()
-    if customer_order_day != None:
-        for i in customer_order_day:
-            dict_order[str(i[1].day)]=0
-        for i in customer_order_day:
-            dict_order[str(i[1].day)]+=int(i[0])
-    for key in dict_order.keys():
-        print(key)
-        labels.append(key)
-        quantity_customer_order.append(dict_order[key])
-
-    #Top sản phẩm bán chạy
-    bestSaler=[]
-    best_saler=db.session.query(Book.title,Book.sales_amount).order_by(Book.sales_amount.desc()).all()
-    count=1
-    if best_saler!=None:
-        for tt, amount in best_saler:
-            if count<=10:
-                a=[count,tt,amount]
-                bestSaler.append(a)
-                count+=1
-            else: break
-
-    return render_template("books/dashboard.html",title="Dashboard", quarterSales=json.dumps(sales),labels=json.dumps(labels),quantity_customer_order=json.dumps(quantity_customer_order),bestSaler=bestSaler)

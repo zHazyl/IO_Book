@@ -5,6 +5,9 @@ from iob_shop import app, db, bcrypt
 from .forms import RegistrationForm, LoginForm
 from .models import Admin
 from iob_shop.books.models import Book, Publisher, Category, Author, Discount
+from iob_shop.customers.models import SalesAmount, CustomerOrder
+from datetime import datetime
+import json
 import os
 
 @app.route('/admin')
@@ -29,7 +32,7 @@ def authors():
         flash('Please login first', 'danger')
         return redirect(url_for('login'))
     authors = db.session.query(Author).order_by(Author.id.desc()).all()
-    return render_template('admin/publishers.html', title='Author page', authors=authors)
+    return render_template('admin/publishers.html', title='Authors page', authors=authors)
 
 @app.route('/categories')
 def categories():
@@ -78,3 +81,43 @@ def logout():
     session.pop('email', None)
     return redirect(url_for('home'))
 
+@app.route('/dashboard')
+def dashboard():
+    if 'email' not in session:
+        flash('Please login first', 'danger')
+        return redirect(url_for('login'))
+    #Doanh thu năm hiện tại
+    curr_year=datetime.utcnow().year
+    quarterSales=db.session.query(SalesAmount).filter_by(year=curr_year).first()
+    sales=[int(quarterSales.quarter1),int(quarterSales.quarter2),int(quarterSales.quarter3),int(quarterSales.quarter4)]
+
+    #Lượng người mua theo ngày trong tháng hiện tại
+    curr_month=datetime.utcnow().month
+    labels=[]
+    quantity_customer_order=[]
+    dict_order={}
+    customer_order_day=db.session.query(db.func.count(CustomerOrder.customer_id), CustomerOrder.date_created).group_by(CustomerOrder.date_created).order_by(CustomerOrder.date_created).all()
+    if customer_order_day != None:
+        for i in customer_order_day:
+            if(i[1].year==curr_year and i[1].month==curr_month):
+                dict_order[str(i[1].day)]=0
+        for i in customer_order_day:
+            if(i[1].year==curr_year and i[1].month==curr_month):
+                dict_order[str(i[1].day)]+=int(i[0])
+    for key in dict_order.keys():
+        labels.append(key)
+        quantity_customer_order.append(dict_order[key])
+
+    #Top sản phẩm bán chạy
+    bestSaler=[]
+    best_saler=db.session.query(Book.title,Book.sales_amount).order_by(Book.sales_amount.desc()).all()
+    count=1
+    if best_saler!=None:
+        for tt, amount in best_saler:
+            if count<=10:
+                a=[count,tt,amount]
+                bestSaler.append(a)
+                count+=1
+            else: break
+
+    return render_template("books/dashboard.html",title="Dashboard", quarterSales=json.dumps(sales),labels=json.dumps(labels),quantity_customer_order=json.dumps(quantity_customer_order),bestSaler=bestSaler)
